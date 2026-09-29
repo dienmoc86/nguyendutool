@@ -41,10 +41,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     'Thông tin (About)',
   ];
 
+  bool _hasWindowsViVoice = false;
+  bool _isCheckingVoice = false;
+
   @override
   void initState() {
     super.initState();
     _loadSystemFonts();
+    _checkWindowsViVoice();
   }
 
   @override
@@ -52,6 +56,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     _legacyTextController.dispose();
     _convertedTextController.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkWindowsViVoice() async {
+    if (!Platform.isWindows) return;
+    setState(() => _isCheckingVoice = true);
+    try {
+      final res = await Process.run('powershell', [
+        '-NoProfile',
+        '-Command',
+        r"Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Speech\Voices\Tokens\*', 'HKLM:\SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens\*' -ErrorAction SilentlyContinue | Where-Object { $_.Name -like '*vi-VN*' -or $_.Name -like '*Vietnamese*' -or $_.Name -like '*An*' }"
+      ]);
+      if (mounted) {
+        setState(() {
+          _hasWindowsViVoice = res.stdout.toString().trim().isNotEmpty;
+          _isCheckingVoice = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isCheckingVoice = false);
+    }
   }
 
   Future<void> _loadSystemFonts() async {
@@ -427,6 +451,164 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       label: const Text('Sao chép kết quả chuẩn'),
                     ),
                   ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Section 3: Quản lý Gói giọng đọc & Ngôn ngữ (Voice & Language Packs)
+        _buildSectionHeader(
+          'Quản lý Gói giọng đọc & Ngôn ngữ (Voice & Language Packs)',
+          'Cung cấp các gói giọng đọc tự nhiên chuẩn tiếng Việt không phụ thuộc vào ngôn ngữ hiển thị của Windows.',
+        ),
+        const SizedBox(height: 16),
+
+        _buildCard(
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Gói 1: AI Tiếng Việt Tự nhiên
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.teal.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.teal.withOpacity(0.35)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.auto_awesome_rounded, color: Colors.tealAccent, size: 24),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Gói giọng AI Tiếng Việt (Hoài My & Nam Minh)',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                                const SizedBox(width: 10),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.teal.withOpacity(0.25),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'Sẵn sàng (Tích hợp)',
+                                    style: TextStyle(fontSize: 11, color: Colors.tealAccent, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Được tích hợp sẵn trong Nguyen Du Tool. Hoạt động trơn tru 100% trên mọi máy tính, kể cả máy cài Windows tiếng Anh (en-US). Phát âm chuẩn giáo dục, đọc tự nhiên, diễn cảm, hỗ trợ đọc số và công thức.',
+                              style: TextStyle(fontSize: 12, color: AppColors.darkTextSecondary, height: 1.4),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Gói 2: Windows Offline SAPI
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: _hasWindowsViVoice
+                        ? AppColors.success.withOpacity(0.08)
+                        : Colors.amber.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: _hasWindowsViVoice
+                          ? AppColors.success.withOpacity(0.35)
+                          : Colors.amber.withOpacity(0.35),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        _hasWindowsViVoice ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                        color: _hasWindowsViVoice ? AppColors.success : Colors.amber,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Gói giọng đọc Ngoại tuyến Windows (Microsoft An - Tiếng Việt)',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                                const SizedBox(width: 10),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: (_hasWindowsViVoice ? AppColors.success : Colors.amber).withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    _hasWindowsViVoice ? 'Đã cài đặt' : 'Chưa có trên Windows',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: _hasWindowsViVoice ? AppColors.success : Colors.amber,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Sử dụng động cơ SAPI / OneCore tích hợp của Windows cho các nhu cầu đọc hoàn toàn Offline không có kết nối mạng.',
+                              style: TextStyle(fontSize: 12, color: AppColors.darkTextSecondary),
+                            ),
+                            const SizedBox(height: 10),
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 8,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    if (Platform.isWindows) {
+                                      Process.run('cmd.exe', ['/c', 'start', 'ms-settings:speech']);
+                                    }
+                                  },
+                                  icon: const Icon(Icons.settings_suggest_rounded, size: 16),
+                                  label: const Text('Mở Cài đặt Windows để tải Gói Tiếng Việt (1-Click)'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                ),
+                                OutlinedButton.icon(
+                                  onPressed: _isCheckingVoice ? null : _checkWindowsViVoice,
+                                  icon: _isCheckingVoice
+                                      ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                                      : const Icon(Icons.refresh_rounded, size: 16),
+                                  label: const Text('Kiểm tra lại'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

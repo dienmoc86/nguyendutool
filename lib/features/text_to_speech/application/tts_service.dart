@@ -30,6 +30,7 @@ import '../infrastructure/rule_based_text_chunker.dart';
 import '../infrastructure/subtitle_generator.dart';
 import '../infrastructure/vietnamese_text_normalization_service.dart';
 import '../infrastructure/windows_speech_synthesizer_provider.dart';
+import '../infrastructure/natural_vietnamese_tts_provider.dart';
 import 'text_extractor_service.dart';
 
 /// Central application orchestrator for Text to Speech synthesis in NguyenDu Tool.
@@ -78,6 +79,9 @@ class TtsService {
     } else {
       final winTts = WindowsSpeechSynthesizerProvider();
       _providers[winTts.info.id] = winTts;
+
+      final naturalViTts = NaturalVietnameseTtsProvider();
+      _providers[naturalViTts.info.id] = naturalViTts;
 
       final googleTts = GoogleCloudTtsProvider();
       _providers[googleTts.info.id] = googleTts;

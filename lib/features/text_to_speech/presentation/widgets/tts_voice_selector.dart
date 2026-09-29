@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/app_colors.dart';
@@ -158,25 +159,101 @@ class TtsVoiceSelector extends ConsumerWidget {
             ],
           ),
 
-          // Clear Warning if no Vietnamese Local Voice installed (Req 9)
-          if (!state.hasVietnameseVoice) ...[
-            const SizedBox(height: 8),
+          // Voice Pack Status & Management (Req: Works on English Windows without language change)
+          const SizedBox(height: 10),
+          if (state.hasVietnameseVoice) ...[
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: Colors.amber.withOpacity(0.4)),
+                color: Colors.teal.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.teal.withOpacity(0.3)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, size: 18, color: Colors.amber),
-                  SizedBox(width: 8),
+                  const Icon(Icons.verified_rounded, size: 18, color: Colors.tealAccent),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Không tìm thấy giọng tiếng Việt cục bộ trên Windows. Bạn có thể cài đặt thêm gói giọng đọc Tiếng Việt trong Cài đặt Windows hoặc sử dụng giọng ngoại ngữ/Cloud.',
-                      style: TextStyle(fontSize: 12, color: Colors.orangeAccent),
+                      'Gói giọng đọc Tiếng Việt (${state.selectedVoice?.name ?? "Tự nhiên"}) đang kích hoạt — Hoạt động độc lập không cần cài đặt tiếng Việt cho Windows.',
+                      style: const TextStyle(fontSize: 12, color: Colors.tealAccent),
                     ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => _showVoicePackDialog(context, ref),
+                    icon: const Icon(Icons.language_rounded, size: 14),
+                    label: const Text('Gói ngôn ngữ & Offline', style: TextStyle(fontSize: 11)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.tealAccent,
+                      side: const BorderSide(color: Colors.tealAccent),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.amber.withOpacity(0.4)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.info_outline_rounded, size: 18, color: Colors.amber),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Windows hiện dùng bản tiếng Anh và chưa có gói giọng đọc tiếng Việt Offline.',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.orangeAccent),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          notifier.setOfflineOnly(false);
+                          notifier.loadVoices();
+                        },
+                        icon: const Icon(Icons.auto_awesome_rounded, size: 15),
+                        label: const Text('Bật Gói giọng AI Tiếng Việt (Tự nhiên)'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.moduleTts,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          textStyle: const TextStyle(fontSize: 11),
+                        ),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () => _openWindowsSpeechSettings(),
+                        icon: const Icon(Icons.settings_suggest_rounded, size: 15),
+                        label: const Text('Tải Gói Tiếng Việt cho Windows (1-Click)'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.amber,
+                          side: const BorderSide(color: Colors.amber),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          textStyle: const TextStyle(fontSize: 11),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Làm mới danh sách giọng',
+                        onPressed: () => notifier.loadVoices(),
+                        icon: const Icon(Icons.refresh_rounded, size: 18),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -299,6 +376,151 @@ class TtsVoiceSelector extends ConsumerWidget {
               ),
               const Text('MP3 (Mã hóa nén)', style: TextStyle(fontSize: 13)),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openWindowsSpeechSettings() {
+    if (Platform.isWindows) {
+      Process.run('cmd.exe', ['/c', 'start', 'ms-settings:speech']);
+    }
+  }
+
+  void _showVoicePackDialog(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(ttsStateProvider.notifier);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        title: const Row(
+          children: [
+            Icon(Icons.language_rounded, color: AppColors.moduleTts),
+            SizedBox(width: 10),
+            Text('Quản lý Gói giọng đọc & Ngôn ngữ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: SizedBox(
+          width: 520,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Gói 1: AI Giọng Việt Tự nhiên
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.teal.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.teal.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.check_circle_rounded, color: Colors.tealAccent, size: 18),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Gói giọng AI Tiếng Việt (Hoài My & Nam Minh)',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.teal.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text('Tích hợp sẵn', style: TextStyle(fontSize: 10, color: Colors.tealAccent, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Hoạt động ngay lập tức trên mọi máy tính (kể cả máy cài Windows tiếng Anh hoặc bản Windows rút gọn). Diễn cảm tự nhiên, phát âm chuẩn giáo dục, hỗ trợ đọc số, công thức, ngày tháng.',
+                      style: TextStyle(fontSize: 12, color: AppColors.darkTextSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Gói 2: Windows Offline Speech Pack
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blueGrey.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.computer_rounded, color: Colors.lightBlueAccent, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          'Gói giọng đọc Offline cho Windows (Microsoft An)',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Dành cho trường hợp máy không có internet. Hướng dẫn cài thêm vào Windows:',
+                      style: TextStyle(fontSize: 12, color: AppColors.darkTextSecondary),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      '• Bước 1: Nhấn nút bên dưới để mở Cài đặt Windows.\n• Bước 2: Nhấn "Add voices" và tìm chọn "Vietnamese".\n• Bước 3: Sau khi Windows tải xong, nhấn "Làm mới danh sách giọng".',
+                      style: TextStyle(fontSize: 11, height: 1.4),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () => _openWindowsSpeechSettings(),
+                          icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                          label: const Text('Mở Cài đặt Windows để tải (1-Click)'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            textStyle: const TextStyle(fontSize: 11),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            notifier.loadVoices();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Đã làm mới danh sách giọng đọc.')),
+                            );
+                          },
+                          icon: const Icon(Icons.refresh_rounded, size: 14),
+                          label: const Text('Làm mới'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            textStyle: const TextStyle(fontSize: 11),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Đóng'),
           ),
         ],
       ),

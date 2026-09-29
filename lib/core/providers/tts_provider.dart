@@ -4,6 +4,7 @@ import '../../features/text_to_speech/domain/models/tts_voice.dart';
 import '../../features/text_to_speech/infrastructure/azure_speech_provider.dart';
 import '../../features/text_to_speech/infrastructure/google_cloud_tts_provider.dart';
 import '../../features/text_to_speech/infrastructure/windows_speech_synthesizer_provider.dart';
+import '../../features/text_to_speech/infrastructure/natural_vietnamese_tts_provider.dart';
 import '../errors/app_exceptions.dart';
 import '../security/credential_service.dart';
 import 'base_provider.dart';
@@ -325,6 +326,70 @@ class AzureTtsProvider extends TtsProvider {
   Future<List<String>> getAvailableVoices() async {
     await reloadCredentials();
     if (!_delegate.info.isConfigured) return const [];
+    final voices = await _delegate.getVoices();
+    return voices.map((v) => v.name).toList();
+  }
+}
+
+/// Built-in Free Natural Vietnamese TTS Provider in Unified Registry.
+class NaturalVietnameseCoreTtsProvider extends TtsProvider {
+  final NaturalVietnameseTtsProvider _delegate;
+
+  @override
+  final String id = 'natural_vietnamese';
+  @override
+  final String name = 'Gói giọng đọc AI Tiếng Việt Tự nhiên';
+  @override
+  final String description = 'Giọng đọc chuẩn sư phạm (Hoài My, Nam Minh, Ban Mai). Tích hợp sẵn, hoạt động độc lập không cần cài đặt tiếng Việt cho Windows.';
+  @override
+  final bool isLocal = true;
+
+  @override
+  ProviderImplementationStatus get implementationStatus => ProviderImplementationStatus.implemented;
+
+  @override
+  ProviderCapabilityState get capabilityState => ProviderCapabilityState.available;
+
+  NaturalVietnameseCoreTtsProvider({NaturalVietnameseTtsProvider? delegate})
+      : _delegate = delegate ?? NaturalVietnameseTtsProvider(),
+        super(isEnabled: true);
+
+  NaturalVietnameseTtsProvider get delegate => _delegate;
+
+  @override
+  Future<bool> checkHealth() async {
+    return await _delegate.initialize();
+  }
+
+  @override
+  Future<String> synthesizeToAudio(
+    String text, {
+    required String outputPath,
+    String? voiceCode,
+    double speed = 1.0,
+  }) async {
+    final voices = await _delegate.getVoices();
+    final voice = voiceCode != null
+        ? voices.firstWhere(
+            (v) => v.id == voiceCode || v.name == voiceCode,
+            orElse: () => voices.first,
+          )
+        : voices.first;
+
+    final request = TtsRequest(
+      text: text,
+      voice: voice,
+      outputPath: outputPath,
+      options: TtsOptions(
+        speed: speed,
+        format: outputPath.toLowerCase().endsWith('.mp3') ? TtsAudioFormat.mp3 : TtsAudioFormat.wav,
+      ),
+    );
+    return await _delegate.synthesize(request);
+  }
+
+  @override
+  Future<List<String>> getAvailableVoices() async {
     final voices = await _delegate.getVoices();
     return voices.map((v) => v.name).toList();
   }

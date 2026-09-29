@@ -69,11 +69,14 @@ class TtsNotifier extends StateNotifier<TtsState> {
     try {
       final voices = await _ttsService.getVoices(offlineOnly: state.isOfflineOnly);
 
-      // Auto-select Vietnamese voice if available, otherwise first voice
+      // Auto-select Vietnamese voice if available, prioritizing natural AI voices
       TtsVoice? preferred;
       final viVoices = voices.where((v) => v.language.toLowerCase().startsWith('vi')).toList();
       if (viVoices.isNotEmpty) {
-        preferred = viVoices.first;
+        preferred = viVoices.firstWhere(
+          (v) => v.id.contains('HoaiMy') || v.id.contains('NamMinh'),
+          orElse: () => viVoices.first,
+        );
       } else if (voices.isNotEmpty) {
         preferred = voices.first;
       }

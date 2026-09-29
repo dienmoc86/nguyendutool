@@ -15,8 +15,9 @@ class ProviderRegistry {
   }
 
   void _registerDefaults() {
-    // 1. Local Offline Implemented Engines (Enabled by default after runtime discovery)
+    // 1. Local / Built-in Implemented Engines (Enabled by default after runtime discovery)
     register(LocalWindowsOcrProvider());
+    register(NaturalVietnameseCoreTtsProvider());
     register(LocalWindowsTtsProvider());
     register(LocalTemplateVideoProvider());
 
