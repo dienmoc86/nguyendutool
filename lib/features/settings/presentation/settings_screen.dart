@@ -13,6 +13,7 @@ import '../../../core/providers/tts_provider.dart';
 import '../../../core/security/credential_service.dart';
 import '../../../core/update/update_notifier.dart';
 import '../../shell/presentation/update_dialog.dart';
+import '../../shell/presentation/support_author_dialog.dart';
 import 'system_diagnostics_screen.dart';
 
 /// Settings screen divided into General, Storage, AI Providers, Advanced, Diagnostics, and About.
@@ -255,8 +256,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Icon(Icons.font_download_rounded, color: AppColors.primary, size: 20),
                         SizedBox(width: 10),
                         Text(
@@ -1081,6 +1082,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   // 5. About Tab
   Widget _buildAboutTab(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1127,7 +1129,96 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _buildInfoRow('Bảo mật dữ liệu nhạy cảm', 'Windows DPAPI (CurrentUser Scope)'),
                 _buildInfoRow('Trạng thái (Phase Status)', 'Phase 5R Complete - Production Remediation & RC Gate'),
                 _buildInfoRow('Kênh cập nhật (GitHub)', 'https://github.com/dienmoc86/nguyendutool'),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+
+                // Author & Free Software Philosophy Banner
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: isDark
+                          ? [const Color(0xFF1E283D), const Color(0xFF172033)]
+                          : [const Color(0xFFF0F4FF), const Color(0xFFE8EEFA)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.favorite_rounded, color: Color(0xFFE91E63), size: 20),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Phần mềm Giáo dục Miễn phí 100% — Tác giả Mr. Điện',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                          const Spacer(),
+                          ElevatedButton.icon(
+                            onPressed: () => SupportAuthorDialog.show(context),
+                            icon: const Icon(Icons.coffee_rounded, size: 15, color: Colors.white),
+                            label: const Text('Mời cà phê ☕'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF9800),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Phần mềm được phát triển phi lợi nhuận dành tặng quý Thầy/Cô và các Nhà trường. Tác giả sẵn sàng tư vấn, nâng cấp chức năng hoặc lập trình phần mềm/công cụ riêng biệt theo yêu cầu của Thầy/Cô.',
+                        style: TextStyle(fontSize: 12.5, height: 1.4),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              if (Platform.isWindows) {
+                                Process.run('cmd.exe', ['/c', 'start', 'https://zalo.me/0917764111']);
+                              }
+                            },
+                            child: const Row(
+                              children: [
+                                Icon(Icons.phone_android_rounded, size: 14, color: Colors.blueAccent),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Hotline / Zalo: 0917.764.111',
+                                  style: TextStyle(fontSize: 12.5, color: Colors.blueAccent, fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          InkWell(
+                            onTap: () {
+                              if (Platform.isWindows) {
+                                Process.run('cmd.exe', ['/c', 'start', 'https://ibestgroup.vn']);
+                              }
+                            },
+                            child: const Row(
+                              children: [
+                                Icon(Icons.public_rounded, size: 14, color: Colors.tealAccent),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Website: ibestgroup.vn',
+                                  style: TextStyle(fontSize: 12.5, color: Colors.tealAccent, fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 16),
 

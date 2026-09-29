@@ -50,11 +50,7 @@ Write-Host "Setup EXE: $setupHash"
 Write-Host "Portable ZIP: $portableHash"
 
 # Copy to user's designated packaging directory: "đóng gói tool"
-$packageDir = "đóng gói tool"
-if (-not (Test-Path $packageDir)) {
-    New-Item -ItemType Directory -Path $packageDir | Out-Null
-}
-Write-Host "`nCopying artifacts to '$packageDir'..."
-Copy-Item -Force "$releaseDir\*" $packageDir
-Write-Host "Files successfully copied to '$packageDir'."
+Write-Host "`nCopying artifacts to 'đóng gói tool'..."
+python -c "import os, shutil; [shutil.rmtree(d) for d in os.listdir('.') if os.path.isdir(d) and 'Ä' in d]; dest = 'đóng gói tool'; os.makedirs(dest, exist_ok=True); [shutil.copy2(os.path.join('$releaseDir', f), os.path.join(dest, f)) for f in os.listdir('$releaseDir')]"
+Write-Host "Files successfully copied to 'đóng gói tool'."
 

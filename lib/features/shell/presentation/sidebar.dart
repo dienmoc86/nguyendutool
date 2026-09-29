@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import 'support_author_dialog.dart';
 
 class NavItem {
   final String title;
@@ -247,6 +249,124 @@ class AppSidebar extends StatelessWidget {
               },
             ),
           ),
+
+          // Author & Support Card (Subtle, elegant, free community tool)
+          if (!isCollapsed) ...[
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF141C2B) : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF223048) : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.coffee_rounded, color: Color(0xFFFFA726), size: 15),
+                      const SizedBox(width: 6),
+                      const Expanded(
+                        child: Text(
+                          'Tác giả: Mr. Điện',
+                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'Free',
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.greenAccent,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Miễn phí 100%. Nhận viết tool & nâng cấp theo yêu cầu riêng.',
+                    style: TextStyle(fontSize: 10, color: AppColors.darkTextSecondary, height: 1.25),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          if (Platform.isWindows) {
+                            Process.run('cmd.exe', ['/c', 'start', 'https://zalo.me/0917764111']);
+                          }
+                        },
+                        child: const Row(
+                          children: [
+                            Icon(Icons.phone_android_rounded, size: 11, color: Colors.blueAccent),
+                            SizedBox(width: 2),
+                            Text(
+                              '0917.764.111',
+                              style: TextStyle(fontSize: 10, color: Colors.blueAccent, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      InkWell(
+                        onTap: () {
+                          if (Platform.isWindows) {
+                            Process.run('cmd.exe', ['/c', 'start', 'https://ibestgroup.vn']);
+                          }
+                        },
+                        child: const Row(
+                          children: [
+                            Icon(Icons.language_rounded, size: 11, color: Colors.tealAccent),
+                            SizedBox(width: 2),
+                            Text(
+                              'ibestgroup.vn',
+                              style: TextStyle(fontSize: 10, color: Colors.tealAccent, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 24,
+                    child: OutlinedButton.icon(
+                      onPressed: () => SupportAuthorDialog.show(context),
+                      icon: const Icon(Icons.favorite_outline_rounded, size: 12, color: Color(0xFFFFA726)),
+                      label: const Text('Mời cà phê ☕', style: TextStyle(fontSize: 10)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFFFA726),
+                        side: BorderSide(color: const Color(0xFFFFA726).withOpacity(0.4)),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: IconButton(
+                tooltip: 'Mr. Điện (0917.764.111) - ibestgroup.vn\nMời tác giả tách cà phê ☕',
+                onPressed: () => SupportAuthorDialog.show(context),
+                icon: const Icon(Icons.coffee_rounded, size: 18, color: Color(0xFFFFA726)),
+              ),
+            ),
+          ],
 
           // Footer workspace label
           if (!isCollapsed)
