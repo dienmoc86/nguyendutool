@@ -127,6 +127,18 @@ class DashboardScreen extends ConsumerWidget {
                       width: itemWidth,
                       height: 226,
                       child: ModuleCard(
+                        title: 'Soạn Giáo án AI (5512)',
+                        subtitle: 'Soạn Kế hoạch bài dạy chuẩn Công văn 5512 bằng Google Gemini AI, tự động sinh rubric và xuất file Word (.docx).',
+                        icon: Icons.auto_awesome_rounded,
+                        accentColor: AppColors.accentViolet,
+                        statusBadge: 'Công văn 5512 AI',
+                        onTap: () => context.go(AppRoutes.lessonPlanner),
+                      ),
+                    ),
+                    SizedBox(
+                      width: itemWidth,
+                      height: 226,
+                      child: ModuleCard(
                         title: 'PDF → Word / Excel',
                         subtitle: 'Chuyển đổi PDF, nhận diện tài liệu scan và trích xuất bảng biểu, giáo án, bài giảng PowerPoint (.pptx).',
                         icon: Icons.picture_as_pdf_rounded,

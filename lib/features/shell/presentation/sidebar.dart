@@ -36,6 +36,12 @@ class AppSidebar extends StatelessWidget {
       accentColor: AppColors.primary,
     ),
     NavItem(
+      title: 'Soạn Giáo án AI (5512)',
+      icon: Icons.auto_awesome_rounded,
+      route: AppRoutes.lessonPlanner,
+      accentColor: AppColors.accentViolet,
+    ),
+    NavItem(
       title: 'Giáo án & Bài giảng',
       icon: Icons.picture_as_pdf_rounded,
       route: AppRoutes.pdfConverter,

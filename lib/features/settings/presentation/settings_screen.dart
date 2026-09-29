@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/filesystem/workspace_manager.dart';
+import '../../../core/fonts/vietnamese_font_service.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/providers/base_provider.dart';
 import '../../../core/providers/tts_provider.dart';
@@ -23,14 +26,44 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   int _selectedTabIndex = 0;
 
+  final TextEditingController _legacyTextController = TextEditingController();
+  final TextEditingController _convertedTextController = TextEditingController();
+  Map<String, bool>? _installedFonts;
+  bool _isLoadingFonts = false;
+
   final List<String> _tabs = [
     'Chung (General)',
+    'Gói ngôn ngữ & Font chữ (Fonts & Language)',
     'Lưu trữ (Storage)',
     'Nhà cung cấp AI (Providers)',
     'Nâng cao (Advanced)',
     'Chẩn đoán hệ thống (Diagnostics)',
     'Thông tin (About)',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSystemFonts();
+  }
+
+  @override
+  void dispose() {
+    _legacyTextController.dispose();
+    _convertedTextController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadSystemFonts() async {
+    setState(() => _isLoadingFonts = true);
+    final fonts = await VietnameseFontService.checkInstalledEducationalFonts();
+    if (mounted) {
+      setState(() {
+        _installedFonts = fonts;
+        _isLoadingFonts = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +120,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           // Settings Content Body
           Expanded(
-            child: _selectedTabIndex == 4
+            child: _selectedTabIndex == 5
                 ? const SystemDiagnosticsScreen()
                 : SingleChildScrollView(
                     padding: const EdgeInsets.all(32),
@@ -99,12 +132,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             case 0:
                               return _buildGeneralTab(context, settings, settingsNotifier);
                             case 1:
-                              return _buildStorageTab(context, workspace);
+                              return _buildFontsAndLanguageTab(context);
                             case 2:
-                              return _buildProvidersTab(context, providerRegistry);
+                              return _buildStorageTab(context, workspace);
                             case 3:
+                              return _buildProvidersTab(context, providerRegistry);
+                            case 4:
                               return _buildAdvancedTab(context, settings, settingsNotifier, workspace);
-                            case 5:
+                            case 6:
                             default:
                               return _buildAboutTab(context);
                           }
@@ -168,6 +203,233 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onChanged: (val) => notifier.updateAutoStart(val),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 1.5. Fonts & Language Tab
+  Widget _buildFontsAndLanguageTab(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(
+          'Gói ngôn ngữ Tiếng Việt & Font chữ Giáo dục',
+          'Kiểm tra font chữ quy chuẩn Bộ GD&ĐT (Times New Roman, font Tiểu học HP001) và công cụ sửa lỗi font chữ cổ (.VNTime / TCVN3 / VNI).',
+        ),
+        const SizedBox(height: 20),
+
+        // Section 1: Font Check
+        _buildCard(
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.font_download_rounded, color: AppColors.primary, size: 20),
+                        SizedBox(width: 10),
+                        Text(
+                          'Font chữ phục vụ Giáo án & Giảng dạy',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: _loadSystemFonts,
+                          icon: const Icon(Icons.refresh_rounded, size: 16),
+                          label: const Text('Quét lại font'),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            if (Platform.isWindows) {
+                              Process.run('explorer.exe', ['C:\\Windows\\Fonts']);
+                            }
+                          },
+                          icon: const Icon(Icons.folder_open_rounded, size: 16),
+                          label: const Text('Mở thư mục Fonts'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Hệ thống tự động phát hiện các font chữ quy chuẩn theo Nghị định 30/2020/NĐ-CP và font chữ viết tay ô ly Tiểu học (HP001):',
+                  style: TextStyle(fontSize: 12, color: AppColors.darkTextSecondary),
+                ),
+                const SizedBox(height: 16),
+                if (_isLoadingFonts)
+                  const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()))
+                else if (_installedFonts != null)
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: _installedFonts!.entries.map((entry) {
+                      final isInstalled = entry.value;
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: isInstalled
+                              ? AppColors.success.withOpacity(0.08)
+                              : AppColors.warning.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isInstalled
+                                ? AppColors.success.withOpacity(0.3)
+                                : AppColors.warning.withOpacity(0.4),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isInstalled ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                              color: isInstalled ? AppColors.success : AppColors.warning,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              entry.key,
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              isInstalled ? 'Khả dụng' : 'Chưa có',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isInstalled ? AppColors.success : AppColors.warning,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Section 2: Legacy font encoding fixer (.VNTime / TCVN3 / VNI -> Unicode UTF-8)
+        _buildSectionHeader(
+          'Công cụ sửa lỗi Font chữ cũ (.VNTime / TCVN3 / VNI)',
+          'Khắc phục tình trạng văn bản giáo án, đề thi cũ bị biến dạng ô vuông hoặc ký tự lạ khi mở trên máy tính hiện đại.',
+        ),
+        const SizedBox(height: 16),
+
+        _buildCard(
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '1. Dán văn bản bị lỗi font vào đây:',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: _legacyTextController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    hintText: 'Dán đoạn văn bản bị lỗi font (ví dụ: bµi häc, gi¸o ¸n, trn...) vào đây...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: () {
+                        final input = _legacyTextController.text;
+                        if (input.isEmpty) return;
+                        final converted = VietnameseFontService.autoFixVietnameseEncoding(input);
+                        setState(() {
+                          _convertedTextController.text = converted;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Đã giải mã sang Tiếng Việt chuẩn Unicode UTF-8!'),
+                            backgroundColor: AppColors.success,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.spellcheck_rounded, size: 18),
+                      label: const Text('Chuyển mã sang Unicode UTF-8 chuẩn'),
+                    ),
+                    const SizedBox(width: 10),
+                    OutlinedButton(
+                      onPressed: () {
+                        _legacyTextController.clear();
+                        _convertedTextController.clear();
+                        setState(() {});
+                      },
+                      child: const Text('Xóa nội dung'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '2. Kết quả sau khi chuyển đổi chuẩn Unicode:',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: _convertedTextController,
+                  maxLines: 4,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: 'Kết quả hiển thị tại đây...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    contentPadding: const EdgeInsets.all(12),
+                    fillColor: isDark ? const Color(0xFF161F30) : const Color(0xFFFBFBFB),
+                    filled: true,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.secondary,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () {
+                        if (_convertedTextController.text.isNotEmpty) {
+                          Clipboard.setData(ClipboardData(text: _convertedTextController.text));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Đã sao chép kết quả vào Clipboard!')),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.copy_rounded, size: 16),
+                      label: const Text('Sao chép kết quả chuẩn'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -790,7 +1052,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   runSpacing: 12,
                   children: [
                     ElevatedButton.icon(
-                      onPressed: () => setState(() => _selectedTabIndex = 4),
+                      onPressed: () => setState(() => _selectedTabIndex = 5),
                       icon: const Icon(Icons.health_and_safety_rounded, size: 16),
                       label: const Text('Mở Chẩn đoán Hệ thống'),
                     ),

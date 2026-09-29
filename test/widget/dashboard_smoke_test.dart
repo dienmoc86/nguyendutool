@@ -63,10 +63,11 @@ void main() {
     // Verify main welcome title
     expect(find.text('Chào mừng đến với NguyenDu Tool'), findsOneWidget);
 
-    // Verify exactly 4 module cards exist
-    expect(find.byType(ModuleCard), findsNWidgets(4));
+    // Verify exactly 5 module cards exist
+    expect(find.byType(ModuleCard), findsNWidgets(5));
 
     // Verify each specific card by widget type and text
+    expect(find.widgetWithText(ModuleCard, 'Soạn Giáo án AI (5512)'), findsOneWidget);
     expect(find.widgetWithText(ModuleCard, 'PDF → Word / Excel'), findsOneWidget);
     expect(find.widgetWithText(ModuleCard, 'Document Scanner'), findsOneWidget);
     expect(find.widgetWithText(ModuleCard, 'Text to Speech'), findsOneWidget);

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../features/file_library/presentation/file_library_screen.dart';
+import '../../features/lesson_planner/presentation/lesson_planner_screen.dart';
 import '../../features/pdf_converter/presentation/pdf_converter_screen.dart';
 import '../../features/scanner/presentation/scanner_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
@@ -59,6 +60,10 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.dashboard}) {
           GoRoute(
             path: AppRoutes.fileLibrary,
             builder: (context, state) => const FileLibraryScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.lessonPlanner,
+            builder: (context, state) => const LessonPlannerScreen(),
           ),
           GoRoute(
             path: AppRoutes.settings,

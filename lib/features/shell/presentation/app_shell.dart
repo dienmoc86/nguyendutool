@@ -34,7 +34,9 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   String _getTitleForRoute(String location) {
-    if (location.startsWith(AppRoutes.pdfConverter)) {
+    if (location.startsWith(AppRoutes.lessonPlanner)) {
+      return 'Trợ lý Soạn Giáo án AI chuẩn Công văn 5512/BGDĐT-GDTrH';
+    } else if (location.startsWith(AppRoutes.pdfConverter)) {
       return 'Chuyển đổi Giáo án & Bài giảng (Word / Excel / PowerPoint)';
     } else if (location.startsWith(AppRoutes.scanner)) {
       return 'Quét Đề thi, Sổ sách & Số hóa học liệu';
