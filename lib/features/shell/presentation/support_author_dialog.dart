@@ -369,7 +369,7 @@ class SupportAuthorDialog extends StatelessWidget {
                                 const Row(
                                   children: [
                                     Text('Chủ tài khoản: ', style: TextStyle(fontSize: 11.5, color: AppColors.darkTextSecondary)),
-                                    Text('NGUYEN VAN DIEN (Mr. Điện)', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                                    Text('NGUYỄN KHẮC ĐIỆN (Mr. Điện)', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ],

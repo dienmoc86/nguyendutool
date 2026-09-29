@@ -155,7 +155,7 @@ class AppSidebar extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          'iBest Group • Giáo dục số',
+                          'Phần mềm hỗ trợ giáo viên',
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w600,
