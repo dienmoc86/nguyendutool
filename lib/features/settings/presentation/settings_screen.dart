@@ -1101,21 +1101,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primary, AppColors.accentViolet],
-                        ),
                         borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      child: const Icon(Icons.school_rounded, color: Colors.white, size: 32),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.asset(
+                          'assets/images/ibest_logo.png',
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 16),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('NguyenDu Tool', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 4),
-                        Text('Desktop Application for Education & School Administration', style: TextStyle(fontSize: 13, color: AppColors.darkTextSecondary)),
-                      ],
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text('NguyenDu Tool', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                              SizedBox(width: 8),
+                              Text('by iBest Group', style: TextStyle(fontSize: 13, color: Color(0xFF4CAF50), fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          Text('Nền tảng trợ lý giáo viên & số hóa trường học — iBest Group (ibestgroup.vn)', style: TextStyle(fontSize: 13, color: AppColors.darkTextSecondary)),
+                        ],
+                      ),
                     ),
                   ],
                 ),

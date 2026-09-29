@@ -3,7 +3,7 @@
 
 #define MyAppName "NguyenDu Tool"
 #define MyAppVersion "1.5.1"
-#define MyAppPublisher "NguyenDu Tool"
+#define MyAppPublisher "iBest Group"
 #define MyAppExeName "NguyenDuTool.exe"
 
 [Setup]
@@ -31,7 +31,7 @@ UninstallDisplayName={#MyAppName}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 VersionInfoVersion=1.5.1.8
 VersionInfoCompany={#MyAppPublisher}
-VersionInfoDescription=NguyenDu Tool Desktop Application
+VersionInfoDescription=NguyenDu Tool Desktop Application by iBest Group
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion=1.5.1
 
