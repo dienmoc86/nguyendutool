@@ -256,7 +256,7 @@ class SupportAuthorDialog extends StatelessWidget {
               ),
               const SizedBox(height: 18),
 
-              // "Buy Me a Coffee" Support Section with QR Code
+              // "Buy Me a Coffee" Support Section with Official VietQR Code
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -267,38 +267,41 @@ class SupportAuthorDialog extends StatelessWidget {
                   ),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Vector QR Code with white background container
+                    // Official VietQR / Napas 247 Image Container
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                            color: Colors.black.withOpacity(0.12),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
-                      child: QrImageView(
-                        data: '2|99|0917764111|Mr Dien|ibestgroup.vn|0|0|Ung ho Nguyen Du Tool',
-                        version: QrVersions.auto,
-                        size: 110,
-                        backgroundColor: Colors.white,
-                        eyeStyle: const QrEyeStyle(
-                          eyeShape: QrEyeShape.square,
-                          color: Color(0xFF1A202C),
-                        ),
-                        dataModuleStyle: const QrDataModuleStyle(
-                          dataModuleShape: QrDataModuleShape.square,
-                          color: Color(0xFF2D3748),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          'assets/images/author_qr.jpg',
+                          width: 145,
+                          height: 154,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return QrImageView(
+                              data: '00020101021138540010A00000072701240006970436011010793288880208QRIBFTTA53037045802VN63043BE8',
+                              version: QrVersions.auto,
+                              size: 140,
+                              backgroundColor: Colors.white,
+                            );
+                          },
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 18),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,7 +311,7 @@ class SupportAuthorDialog extends StatelessWidget {
                               Text(
                                 'Mời tác giả tách Cà phê ☕',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFFFFA726),
                                 ),
@@ -317,8 +320,57 @@ class SupportAuthorDialog extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           const Text(
-                            'Sự động viên của Thầy/Cô (dù là một lời chúc hay một ly cà phê) là món quà quý giá tiếp thêm năng lượng cho tác giả!',
-                            style: TextStyle(fontSize: 11.5, height: 1.4),
+                            'Sự động viên của quý Thầy/Cô (dù là một lời chúc hay một ly cà phê) là món quà quý giá tiếp thêm năng lượng cho tác giả!',
+                            style: TextStyle(fontSize: 12, height: 1.4),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF141923) : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF232D42) : const Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(
+                                  children: [
+                                    Text('Ngân hàng: ', style: TextStyle(fontSize: 11.5, color: AppColors.darkTextSecondary)),
+                                    Text('Vietcombank (VCB)', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.greenAccent)),
+                                  ],
+                                ),
+                                const SizedBox(height: 3),
+                                Row(
+                                  children: [
+                                    const Text('Số tài khoản: ', style: TextStyle(fontSize: 11.5, color: AppColors.darkTextSecondary)),
+                                    const Text('1079328888', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFFA726))),
+                                    const SizedBox(width: 6),
+                                    InkWell(
+                                      onTap: () {
+                                        Clipboard.setData(const ClipboardData(text: '1079328888'));
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Đã sao chép STK Vietcombank: 1079328888'),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      },
+                                      child: const Icon(Icons.copy_rounded, size: 14, color: AppColors.primary),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 3),
+                                const Row(
+                                  children: [
+                                    Text('Chủ tài khoản: ', style: TextStyle(fontSize: 11.5, color: AppColors.darkTextSecondary)),
+                                    Text('NGUYEN VAN DIEN (Mr. Điện)', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 10),
                           Wrap(
@@ -327,16 +379,16 @@ class SupportAuthorDialog extends StatelessWidget {
                             children: [
                               OutlinedButton.icon(
                                 onPressed: () {
-                                  Clipboard.setData(const ClipboardData(text: '0917764111'));
+                                  Clipboard.setData(const ClipboardData(text: '1079328888'));
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Đã sao chép SĐT / Ví MoMo / ZaloPay: 0917.764.111'),
-                                      duration: Duration(seconds: 3),
+                                      content: Text('Đã sao chép STK Vietcombank: 1079328888'),
+                                      duration: Duration(seconds: 2),
                                     ),
                                   );
                                 },
-                                icon: const Icon(Icons.copy_rounded, size: 14),
-                                label: const Text('Sao chép SĐT (0917.764.111)'),
+                                icon: const Icon(Icons.copy_rounded, size: 13),
+                                label: const Text('Sao chép STK VCB'),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: const Color(0xFFFFA726),
                                   side: const BorderSide(color: Color(0xFFFFA726)),
@@ -344,9 +396,28 @@ class SupportAuthorDialog extends StatelessWidget {
                                   textStyle: const TextStyle(fontSize: 11),
                                 ),
                               ),
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  Clipboard.setData(const ClipboardData(text: '0917764111'));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Đã sao chép SĐT / Zalo / MoMo: 0917.764.111'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.phone_iphone_rounded, size: 13),
+                                label: const Text('Sao chép SĐT'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.blueAccent,
+                                  side: const BorderSide(color: Colors.blueAccent),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  textStyle: const TextStyle(fontSize: 11),
+                                ),
+                              ),
                               ElevatedButton.icon(
                                 onPressed: _openZalo,
-                                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 14),
+                                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 13),
                                 label: const Text('Nhắn Zalo tác giả'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF0288D1),
