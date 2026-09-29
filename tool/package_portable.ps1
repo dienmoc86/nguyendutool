@@ -48,3 +48,13 @@ $checksums | Set-Content "$releaseDir\SHA256SUMS.txt"
 Write-Host "SHA256SUMS.txt generated in $releaseDir."
 Write-Host "Setup EXE: $setupHash"
 Write-Host "Portable ZIP: $portableHash"
+
+# Copy to user's designated packaging directory: "đóng gói tool"
+$packageDir = "đóng gói tool"
+if (-not (Test-Path $packageDir)) {
+    New-Item -ItemType Directory -Path $packageDir | Out-Null
+}
+Write-Host "`nCopying artifacts to '$packageDir'..."
+Copy-Item -Force "$releaseDir\*" $packageDir
+Write-Host "Files successfully copied to '$packageDir'."
+

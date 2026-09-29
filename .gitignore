@@ -41,3 +41,5 @@ tools/Tesseract/*.exe
 
 # Generated release installers and portable archives (managed via GitHub Releases)
 /release/
+/đóng gói tool/
+
