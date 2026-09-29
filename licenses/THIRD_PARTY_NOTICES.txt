@@ -1,0 +1,17 @@
+================================================================================
+NGUYENDU TOOL - THIRD-PARTY NOTICES & OPEN SOURCE ATTRIBUTION
+Version: 1.5.0 (Windows x64 Release Candidate)
+================================================================================
+
+This application redistributes and links against several open-source libraries
+and third-party components under their respective licenses. Below are the
+applicable copyright notices and permission statements.
+
+1. FLUTTER & DART ENGINE: BSD-3-Clause (Google LLC & Flutter Authors)
+2. SQLITE & SQLITE3 FFI: Public Domain (Hwaci / D. Richard Hipp)
+3. FFMPEG MULTIMEDIA FRAMEWORK: GNU GPLv3 / LGPLv3 (FFmpeg Developers & Conda Forge)
+   - Corresponding source: https://github.com/conda-forge/ffmpeg-feedstock
+4. ARCHIVE PACKAGE: Apache License 2.0 (Brendan Duncan)
+5. RIVERPOD: MIT License (Remi Rousselet)
+6. GO_ROUTER: BSD-3-Clause (Flutter Authors)
+7. IMAGE & CRYPTO: Apache 2.0 / BSD-3-Clause

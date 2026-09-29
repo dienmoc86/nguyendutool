@@ -1,0 +1,105 @@
+================================================================================
+NGUYENDU TOOL - THIRD-PARTY NOTICES & OPEN SOURCE ATTRIBUTION
+Version: 1.5.0 (Windows x64 Release Candidate)
+================================================================================
+
+This application redistributes and links against several open-source libraries
+and third-party components under their respective licenses. Below are the
+applicable copyright notices and permission statements.
+
+--------------------------------------------------------------------------------
+1. FLUTTER & DART ENGINE
+License: BSD-3-Clause
+Copyright 2014 The Flutter Authors. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Google LLC nor the names of its contributors
+      may be used to endorse or promote products derived from this software
+      without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+--------------------------------------------------------------------------------
+2. SQLITE & SQLITE3 FFI
+License: Public Domain / SQLite Dedication
+SQLite Copyright (c) D. Richard Hipp.
+
+All of the code and documentation in SQLite has been dedicated to the public
+domain by the authors. All code authors, and representatives of the companies
+they work for, have signed affidavits dedicating their contributions to the
+public domain and originals of those signed affidavits are stored in a firesafe
+at the main offices of Hwaci. Anyone is free to copy, modify, publish, use,
+compile, sell, or distribute the original SQLite code, either in source code
+form or as a compiled binary, for any purpose, commercial or non-commercial,
+and by any means.
+
+--------------------------------------------------------------------------------
+3. FFMPEG MULTIMEDIA FRAMEWORK (Bundled in bin/)
+License: GNU General Public License v3.0 (GPLv3) / LGPLv3
+FFmpeg Copyright (c) 2000-2025 the FFmpeg developers.
+
+This binary distribution bundles FFmpeg 8.0.1 (conda-forge shared build),
+configured with:
+--enable-gpl --enable-libx264 --enable-libx265 --enable-libmp3lame
+--enable-libaom --enable-libsvtav1 --enable-libxml2 --enable-version3
+--enable-zlib --enable-libvorbis --enable-libopus --enable-librsvg
+--enable-libjxl --enable-libwebp --enable-vulkan --enable-libshaderc
+--enable-libfreetype --enable-libharfbuzz --enable-libfontconfig
+
+Because this build enables libx264, libx265, and other GPL modules, this bundled
+FFmpeg distribution is governed by the GNU General Public License v3.0 (GPLv3).
+The source code corresponding to this specific FFmpeg build is available via:
+https://github.com/conda-forge/ffmpeg-feedstock
+and upstream FFmpeg:
+https://ffmpeg.org/releases/ffmpeg-8.0.1.tar.xz
+
+--------------------------------------------------------------------------------
+4. ARCHIVE PACKAGE (package:archive)
+License: Apache License 2.0
+Copyright 2013-2024 Brendan Duncan.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+--------------------------------------------------------------------------------
+5. RIVERPOD STATE MANAGEMENT (package:flutter_riverpod)
+License: MIT License
+Copyright (c) 2020 Remi Rousselet.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software.
+
+--------------------------------------------------------------------------------
+6. GO_ROUTER (package:go_router)
+License: BSD-3-Clause
+Copyright 2013 The Flutter Authors. All rights reserved.
+
+--------------------------------------------------------------------------------
+7. CRYPTO & INTL & UUID & LOGGER & IMAGE
+License: BSD-3-Clause / MIT / Apache 2.0
+Copyright (c) Dart project authors and library maintainers.
+
+================================================================================
+END OF THIRD-PARTY NOTICES
+================================================================================

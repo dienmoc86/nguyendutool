@@ -1,0 +1,7 @@
+﻿DANH SACH HOC SINH DAT THANH TICH XUAT SAC
+Lop 9A1 - Nam hoc 2026 - 2027
+STT Ho va ten Lop Diem TB Xep loai
+1 Nguyen Van An 9A1 9.5 Xuat sac
+2 Tran Thi Mai 9A1 9.3 Xuat sac
+3 Le Hoang Nam 9A2 8.8 Gioi
+4 Pham Thu Huong 9A3 9.0 Gioi

@@ -1,0 +1,43 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Windows build and ephemeral files
+/windows/flutter/ephemeral/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Large binary tools (>50MB, downloaded via tool/download_all_engines.ps1)
+tools/Stirling-PDF/*.jar
+tools/Tesseract/*.exe
+
+# Generated release installers and portable archives (managed via GitHub Releases)
+/release/

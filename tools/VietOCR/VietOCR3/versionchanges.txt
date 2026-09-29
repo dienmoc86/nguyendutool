@@ -1,0 +1,373 @@
+VietOCR Change Summary
+
+Version 3.0 (3 October 2010)
+- Upgrade Tesseract OCR engine to 3.0
+- Replace old format (2.0x) language data with new format (3.0) language data
+- Change datafile suffix from .inttemp to .traineddata
+
+Version 3.1 (port changes from Version 2.0) (6 February 2011)
+- Upgrade JACOB library to version 1.15-M4
+- Add support for spellcheck suggestion in context menu
+- Improve program accessibility and usability
+- Add support for downloading and installing language data packs and appropriate spell dictionaries
+- Add UI localization for Lithuanian and Slovak
+- Refactoring by breaking up large classes into smaller ones
+- Update Tesseract OCR engine to 3.01 (r551)
+
+Version 3.1.1 (7 March 2011)
+- Incorporate Apple Java Extensions
+- Fix a bug which hangs the program if x.DangAmbigs.txt contains entries starting with an equal symbol (=)
+- Improve postprocessing performance by caching the word list used; reload only if changes
+- Improve error reporting by displaying actual messages output from the engine
+
+Version 3.1.2 (13 March 2011)
+- Fix a MissingResourceException associated with Font dialog
+- Incorporate deskew functionality using JDeskew library
+
+Version 3.1.3 (4 June 2011)
+- Update Tesseract 3.01 to r585
+- Fix an issue with restart notification after language pack downloads
+- Refactoring
+- Improve program usability, enabling image navigation and manipulation with keyboard
+- Fix an EOL issue that broke Remove Line Breaks functionality on Windows
+- Replace Vietnamese language pack with an improved version
+
+Version 3.1.4 (1 August 2011)
+- Update Tesseract 3.01 to r597
+
+Version 3.1.5 (12 September 2011)
+- Update Tesseract 3.01 to r625
+- Provide Page Segmentation Mode options for Tesseract engine
+
+Version 3.2 (22 October 2011)
+- Update Tesseract 3.01 to r638 (final release version)
+- Remove unneeded liblept168.dll
+- Update lists of language codes
+- Update JACOB to 1.16-M1 version
+- Add PSM support to execution from command line
+
+Version 3.2.1 (14 January 2012)
+- Fix an issue with opening Help file on OS X
+- Update JACOB to 1.16-M2 version
+- Update JNA to 3.4.0 version
+
+Version 3.2.2 (21 January 2012)
+- Fix a context menu's font issue with displaying Unicode characters for spellcheck suggestions
+
+Version 3.3 (25 February 2012)
+- Download Language Data will warn if the user does not have write access to tessdata folder
+- Fix a bug with scrollbars visible when Fit Image selected
+- Update Hunspell to v1.3.2
+- Use icons from FatCow (http://www.fatcow.com/free-icons) and by Rimas Kudelis
+
+Version 3.4 (3 November 2012)
+- Upgrade Tesseract engine to v3.02 (r798)
+- Enable text entry in the combobox for Tesseract 3.02's multi-language OCR support
+- Fit Image now retains image aspect ratio
+- Add optional support for using Tess4J library
+- Update JACOB to 1.16.1 version
+
+Version 3.4.1 (28 November 2012)
+- Add Bulk OCR process
+- Update Tesseract 3.02 to r806
+
+Version 3.4.2 (6 January 2013)
+- Add hocr support for Bulk & Batch and command-line operations
+- Update links to dictionary files
+- Update Tesseract 3.02 to r820
+- Update JNA to v3.5.1
+
+Version 3.5 (25 January 2014)
+- Update Tesseract 3.02 to r866
+- Update Tess4J library
+- Update JNA to v4.0
+- Update JACOB to 1.17 version
+- Enhance Bulk ops with subdirectory support
+- Incorporate image filters
+- Implement Undo function
+- Additional translations
+
+Version 3.6 (4 March 2015)
+- Update JNA to v4.1.0
+- Update Ghost4J to v0.5.1
+- Update Tess4J to v1.4.2
+- Add Split TIFF function
+- Add thumbnail bar for ease of page navigation
+- Display useful info in statusbar
+- Update links to OpenOffice dictionaries
+- Update Hunspell to v1.3.3 and fix a NPE; add Windows 64-bit support
+- Add support for reading specific configs files for setting Tesseract control parameters
+
+Version 4.0 (30 March 2015)
+- Upgrade to Tesseract 3.03 RC (r1127)
+- Upgrade Tess4J to v2.0
+- Add support for searchable PDF output in bulk/batch mode
+
+Version 4.1 (18 January 2016)
+- Upgrade to Tesseract 3.04 (953523b)
+- Upgrade to Tess4J 3.0
+- Image zoom with mousewheel and Ctrl key
+- Display segmented regions
+- Update JNA to 4.2.1
+- Update JACOB to 1.8
+- Update translations
+
+Version 4.2 (2 April 2016)
+- Upgrade to Tesseract 3.04.01 (4ef68a0)
+- Upgrade to Tess4J 3.1
+- Update various dependency versions
+
+Version 4.3 (30 May 2016)
+- Implement remove lines & crop image function
+- Update Tess4J to 3.2.1
+- Update various dependency versions
+- Convert WIA scanned image BMP to PNG
+
+Version 4.4 (14 January 2017)
+Improvements by John Helour, including:
+- Additional image filters
+- Expand support to include Regex text replacements from DangAmbigs.txt file
+- Hyphen replacements
+
+Version 4.5 (17 February 2017)
+- Upgrade to Tesseract 3.05 (5afface)
+- Upgrade to Tess4J 3.3.0
+
+Version 4.6 (4 September 2017)
+- Upgrade to Tesseract 3.05.01 (2158661)
+- Upgrade to Tess4J 3.4.0
+
+Version 4.6.1 (22 September 2017)
+- Update Tesseract 3.05.01 (e2e79c4)
+- Update to Tess4J 3.4.1
+
+Version 4.6.2 (14 November 2017)
+- Update to Tess4J 3.4.2
+
+Version 4.6.3 (22 February 2018)
+- Update to Tess4J 3.4.4 and Lept4J 1.6.3
+
+Version 4.7 (24 March 2018)
+- Update to Tess4J 3.4.5; remove Ghostscript DLL and use PDFBox if Ghostscript not available
+
+Version 4.7.1 (25 March 2018)
+- Update PDFBox dependencies
+
+Version 4.7.2 (16 April 2018)
+- Update jai-imageio-core to 1.4.0 for Java 9 fixes
+- Update to Tess4J 3.4.7 and Lept4J 1.6.4
+
+Version 5.0 (28 April 2018)
+- Upgrade to Tesseract 4.0.0-beta.1 (45bb942) and language data
+- Upgrade to Tess4J 4.0.0 and Lept4J 1.7.3
+- Upgrade Tesseract 4.00 fast language packs
+- Autodeskew for batch and bulk processes
+- Implement despeckle function
+
+Version 5.0.1 (3 May 2018)
+- Update Tess4J 4.0.2 and Lept4J 1.9.4
+- Update to current hunspell-1.6 on Linux
+
+Version 5.0.2 (10 May 2018)
+- Update available language list to include scripts
+
+Version 5.0.3 (19 May 2018)
+- Add support for Convert PDF to TIFF
+
+Version 5.1.0 (22 July 2018)
+- Upgrade to Tesseract 4.0.0-beta.3 (b502bbf) and language data
+- Upgrade to Tess4J 4.1.0 and Lept4J 1.10.0
+- Update dependencies
+
+Version 5.1.1 (28 July 2018)
+- Update Tess4J 4.1.1
+
+Version 5.2 (11 August 2018)
+- Upgrade to Tesseract 4.0.0-beta.4 (fd49206)
+
+Version 5.2.1 (3 September 2018)
+- Update Tess4J 4.2.2
+
+Version 5.3.0 (29 September 2018)
+- Implement Find & Replace functionality
+
+Version 5.3.1 (18 October 2018)
+- Update Tess4J 4.2.3 & pdfbox dependencies
+
+Version 5.4.0 (30 October 2018)
+- Upgrade to Tesseract 4.0.0 (5131699)
+
+Version 5.4.1 (27 December 2018)
+- Rebuilt Tesseract Windows executable without /arch:AVX flag
+- Update Tess4J 4.3.1
+
+Version 5.4.2 (31 December 2018)
+- Improve Convert PDF to TIFF for multiple files
+
+Version 5.4.3 (23 February 2019)
+- Add support for double-sided pages
+- Update Ghost4J to have Unicode filename/path support
+
+Version 5.5.0 (17 July 2019)
+- Update Tess4J 4.4.0 (Tesseract 4.1.0)
+- Update dependencies
+- Replace deprecated methods
+
+Version 5.5.1 (25 August 2019)
+- Remove AppleJavaExtensions deprecated in Java 9
+
+Version 5.5.2 (29 September 2019)
+- Update Hunspell & other dependencies
+
+Version 5.5.3 (14 December 2019)
+- Update Tess4J 4.4.1
+- Add support for reading JPEG2000 image
+- Update translations
+
+Version 5.6.0 (3 January 2020)
+- Fix minor UI issues
+- Additional localized strings
+- Persist selected directory of PDF files
+- Update Tess4J 4.5.1 (Tesseract 4.1.1)
+- Update other dependencies
+
+Version 5.6.1 (17 April 2020)
+- Fix locked file issues with batch process
+
+Version 5.6.2 (14 July 2020)
+- Update Tess4J 4.5.2
+- Update other dependencies
+
+Version 5.6.3 (15 August 2020)
+- Add commons-logging dependency
+
+Version 5.6.4 (23 August 2020)
+- Update Tess4J 4.5.3
+- Update other dependencies
+- Update translations
+
+Version 5.7.0 (18 October 2020)
+- Support multiple renderers and provide pre- and post-processing for Bulk/Batch ops
+- Various UI improvements
+- Proper cleanup of working intermediate files
+- Expand command-line interface (CLI) support
+- Update dependencies
+
+Version 5.7.1 (15 November 2020)
+- Update dependencies
+
+Version 5.7.2 (28 November 2020)
+- Support text-only PDF format
+
+Version 5.7.3 (27 January 2021)
+- Fix Hunspell for MacOS
+
+Version 5.7.4 (8 March 2021)
+- Fix paste image from clipboard for MacOS
+
+Version 5.7.5 (20 July 2021)
+- Update dependencies
+
+Version 5.7.6 (11 November 2021)
+- Update dependencies
+- Update language data pack download links
+
+Version 5.8.0 (28 November 2021)
+- Update Tess4J 4.6.0 (Tesseract 4.1.3)
+
+Version 6.0.0 (17 December 2021)
+- Upgrade to Tess4J 5.0.0 (Tesseract 5.0.0) and Lept4J 1.16.1 (Leptonica 1.82.0)
+- Update translations
+
+Version 6.1.0 (11 January 2022)
+- Upgrade to Tess4J 5.1.0 (Tesseract 5.0.1)
+- Update dependencies
+
+Version 6.1.1 (26 January 2022)
+- Remove ghost4j and log4j due to vulnerabilities
+
+Version 6.2.0 (4 March 2022)
+- Upgrade to Tesseract 5.1.0 (tess4j-5.2.0)
+
+Version 6.2.1 (26 April 2022)
+- Update tess4j-5.2.1
+- Update dependencies
+
+Version 6.3.0 (7 July 2022)
+- Upgrade to Tesseract 5.2.0 (tess4j-5.3.0)
+
+Version 6.3.1 (10 July 2022)
+- Update translations
+
+Version 6.4.0 (11 August 2022)
+- Update tess4j-5.4.0
+
+Version 6.5.0 (3 December 2022)
+- Implement postprocessing for Bulk/Batch ops
+- Update dependencies
+
+Version 6.6.0 (27 December 2022)
+- Upgrade to Tesseract 5.3.0 (tess4j-5.5.0)
+- Update dependencies
+
+Version 6.7.0 (29 January 2023)
+- Update tess4j-5.6.0
+- Update lept4j-1.18.0
+
+Version 6.8.0 (5 April 2023)
+- Upgrade to Tesseract 5.3.1 (tess4j-5.7.0)
+
+Version 6.9.0 (29 July 2023)
+- Upgrade to Tesseract 5.3.2 (tess4j-5.8.0)
+- Update dependencies
+
+Version 6.10.0 (4 December 2023)
+- Upgrade to Tesseract 5.3.3 (tess4j-5.9.0)
+- Update dependencies
+- Lay down support for multiple ROIs per image page
+
+Version 6.11.0 (1 January 2024)
+- Implement checkedcombobox for language selection
+
+Version 6.12.0 (4 January 2024)
+- Update Tess4J 5.10.0 and Lept4J 1.19.0
+
+Version 6.13.0 (13 March 2024)
+- Upgrade to Tesseract 5.3.4
+- Update dependencies
+- Implement open add image functionality using Shift key
+- Additional localized strings
+- Update translations
+
+Version 6.13.1 (16 March 2024)
+- Support open multiple file selection
+
+Version 6.14.0 (24 June 2024)
+- Upgrade to Tesseract 5.4.1 (Tess4J 5.12.0)
+- Update dependencies
+
+Version 6.15.0 (21 January 2025)
+- Upgrade to Tesseract 5.5.0 (Tess4J 5.14.0)
+- Update dependencies
+
+Version 6.16.0 (15 February 2025)
+- Update Tess4J 5.15.0 and other dependencies
+
+Version 6.17.0 (8 June 2025)
+- Upgrade to Tesseract 5.5.1 (Tess4J 5.16.0)
+- Update dependencies
+
+Version 6.18.0 (11 December 2025)
+- Update dependencies
+
+Version 6.19.0 (16 January 2026)
+- Upgrade to Tesseract 5.5.2 (Tess4J 5.18.0)
+
+Version 6.20.0 (26 May 2026)
+- Update Tess4J 5.19.0 & Lept4J 1.24.0
+- Update dependencies
+
+Version 6.21.0 (27 July 2026)
+- Upgrade to Tesseract 5.5.3 (Tess4J 5.20.0)
+- Target Java 17
+- Update dependencies

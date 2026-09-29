@@ -1,0 +1,11 @@
+{
+  "product": "NguyenDu Tool",
+  "version": "1.5.1",
+  "build": 8,
+  "releaseDate": "2026-09-27T15:30:00+07:00",
+  "architecture": "windows-x64",
+  "minimumWindowsVersion": "Windows 10 (19041+) / Windows 11 (x64)",
+  "databaseSchema": 5,
+  "ffmpegVersion": "8.0.1",
+  "license": "Proprietary Core with Open-Source Components"
+}
