@@ -104,7 +104,7 @@ void main() {
     });
 
     test('Grouping by category works as expected', () {
-      final grouped = registry.getModulesGroupedByCategory();
+      final grouped = registry.getModulesGroupedByCategory(includeHidden: true);
       expect(grouped.containsKey(ModuleCategory.home), isTrue);
       expect(grouped.containsKey(ModuleCategory.teaching), isTrue);
       expect(grouped.containsKey(ModuleCategory.documents), isTrue);

@@ -9,9 +9,11 @@ import '../domain/models/tts_voice.dart';
 import '../domain/models/tts_voice_engine.dart';
 import '../domain/services/tts_provider.dart';
 
-/// Built-in Free Natural Vietnamese TTS Provider.
-/// Provides high-quality natural Vietnamese voices (Hoài My, Nam Minh, Ban Mai)
-/// that work out of the box on all computers without requiring Windows Vietnamese language packs.
+/// Built-in High Quality Natural Vietnamese TTS Provider.
+/// Uses standalone bundled Edge Neural engine for authentic Vietnamese voices:
+/// - Hoài My (Nữ - Truyền cảm, Tự nhiên)
+/// - Nam Minh (Nam - Trầm ấm, Chuẩn GD)
+/// Zero configuration required, produces studio-grade MP3 output.
 class NaturalVietnameseTtsProvider implements TtsProvider {
   @override
   final String id = 'natural_vietnamese';
@@ -20,7 +22,7 @@ class NaturalVietnameseTtsProvider implements TtsProvider {
   final TtsProviderInfo info = const TtsProviderInfo(
     id: 'natural_vietnamese',
     name: 'Giọng đọc AI Tiếng Việt Tự nhiên',
-    description: 'Gói giọng đọc tự nhiên chuẩn tiếng Việt (Hoài My, Nam Minh, Ban Mai). Hoạt động trên mọi máy tính không cần cài gói ngôn ngữ Windows.',
+    description: 'Giọng đọc tự nhiên chuẩn tiếng Việt (Hoài My, Nam Minh). Hoạt động mượt mà, phát âm chuẩn sư phạm và xuất âm thanh chất lượng cao.',
     isOffline: false,
     isConfigured: true,
     supportsPitch: true,
@@ -29,13 +31,13 @@ class NaturalVietnameseTtsProvider implements TtsProvider {
     supportsMp3: true,
     supportsTiming: true,
     supportsChunkTiming: true,
-    maxCharactersPerRequest: 4000,
+    maxCharactersPerRequest: 10000,
     minSpeed: 0.5,
     maxSpeed: 2.0,
   );
 
   bool _initialized = false;
-  bool _hasEdgeTtsCli = false;
+  String? _runnerPath;
 
   static const List<TtsVoice> _supportedVoices = [
     TtsVoice(
@@ -76,17 +78,30 @@ class NaturalVietnameseTtsProvider implements TtsProvider {
   @override
   Future<bool> initialize() async {
     if (_initialized) return true;
-    try {
-      final res = await Process.run('edge-tts', ['--version']).timeout(const Duration(seconds: 3));
-      _hasEdgeTtsCli = res.exitCode == 0;
-      if (_hasEdgeTtsCli) {
-        AppLogger.info('NaturalVietnameseTtsProvider: edge-tts CLI detected.');
-      }
-    } catch (_) {
-      _hasEdgeTtsCli = false;
+    _runnerPath = _resolveRunnerExecutable();
+    if (_runnerPath != null) {
+      AppLogger.info('NaturalVietnameseTtsProvider: Using runner at $_runnerPath');
     }
     _initialized = true;
     return true;
+  }
+
+  String? _resolveRunnerExecutable() {
+    // 1. Check relative to app executable
+    try {
+      final exeDir = p.dirname(Platform.resolvedExecutable);
+      final cand1 = p.join(exeDir, 'bin', 'edge_tts_runner.exe');
+      if (File(cand1).existsSync()) return cand1;
+
+      final cand2 = p.join(exeDir, 'edge_tts_runner.exe');
+      if (File(cand2).existsSync()) return cand2;
+    } catch (_) {}
+
+    // 2. Check current working directory
+    final cwdCand = p.join(Directory.current.path, 'bin', 'edge_tts_runner.exe');
+    if (File(cwdCand).existsSync()) return cwdCand;
+
+    return null;
   }
 
   @override
@@ -112,43 +127,72 @@ class NaturalVietnameseTtsProvider implements TtsProvider {
     final outDir = Directory(p.dirname(targetPath));
     if (!outDir.existsSync()) outDir.createSync(recursive: true);
 
-    final voiceId = request.voice.id;
-    final isNeural = voiceId.contains('Neural');
-    
+    final voiceId = request.voice.id.isNotEmpty ? request.voice.id : 'vi-VN-HoaiMyNeural';
     final intermediateAudio = isWav 
         ? p.join(Directory.systemTemp.path, 'tts_raw_${DateTime.now().microsecondsSinceEpoch}.mp3')
         : targetPath;
 
+    // Write text to a temporary UTF-8 file to avoid Windows command line character encoding loss
+    final tempTextFile = File(p.join(
+      Directory.systemTemp.path,
+      'tts_in_${DateTime.now().millisecondsSinceEpoch}_${request.chunkIndex ?? 0}.txt',
+    ));
+    await tempTextFile.writeAsString(request.text, flush: true);
+
+    final ratePercent = ((request.options.speed - 1.0) * 100).round();
+    final rateArg = '${ratePercent >= 0 ? "+" : ""}$ratePercent%';
+
     bool synthesized = false;
 
-    // 1. Try edge-tts CLI if available for neural voices
-    if (isNeural && _hasEdgeTtsCli) {
+    // 1. Try bundled runner executable
+    final runner = _runnerPath ?? _resolveRunnerExecutable();
+    if (runner != null && File(runner).existsSync()) {
       try {
-        final rateArg = request.options.speed != 1.0
-            ? '${((request.options.speed - 1.0) * 100).round() >= 0 ? "+" : ""}${((request.options.speed - 1.0) * 100).round()}%'
-            : '+0%';
+        final res = await Process.run(
+          runner,
+          ['-i', tempTextFile.path, '-o', intermediateAudio, '-v', voiceId, '-r', rateArg],
+        ).timeout(const Duration(seconds: 45));
 
-        final proc = await Process.run(
-          'edge-tts',
-          ['--voice', voiceId, '--text', request.text, '--rate', rateArg, '--write-media', intermediateAudio],
-        ).timeout(const Duration(seconds: 25));
-
-        if (proc.exitCode == 0 && File(intermediateAudio).existsSync() && File(intermediateAudio).lengthSync() > 100) {
-          AppLogger.info('Synthesized speech via Edge TTS Neural: $intermediateAudio');
+        if (res.exitCode == 0 && File(intermediateAudio).existsSync() && File(intermediateAudio).lengthSync() > 100) {
+          AppLogger.info('Synthesized speech via Edge TTS Runner: $intermediateAudio');
           synthesized = true;
+        } else {
+          AppLogger.warning('Edge TTS Runner exited with ${res.exitCode}: ${res.stderr}');
         }
       } catch (e) {
-        AppLogger.warning('Edge TTS CLI failed, falling back to Google TTS: $e');
+        AppLogger.warning('Edge TTS Runner execution failed: $e');
       }
     }
 
-    // 2. High-reliability HTTP Google TTS fallback if not synthesized
+    // 2. Fallback to python script if development environment
+    if (!synthesized) {
+      try {
+        final cliScript = p.join(Directory.current.path, 'tool', 'edge_tts_cli.py');
+        if (File(cliScript).existsSync()) {
+          final res = await Process.run(
+            'python',
+            [cliScript, '-i', tempTextFile.path, '-o', intermediateAudio, '-v', voiceId, '-r', rateArg],
+          ).timeout(const Duration(seconds: 45));
+
+          if (res.exitCode == 0 && File(intermediateAudio).existsSync() && File(intermediateAudio).lengthSync() > 100) {
+            synthesized = true;
+          }
+        }
+      } catch (_) {}
+    }
+
+    // Clean up temporary text file
+    try {
+      if (tempTextFile.existsSync()) tempTextFile.deleteSync();
+    } catch (_) {}
+
+    // 3. Fallback to Google TTS if edge failed
     if (!synthesized) {
       await _synthesizeViaGoogleTts(request.text, intermediateAudio);
       synthesized = true;
     }
 
-    // 3. If WAV was requested, transcode intermediate MP3 to standard PCM 16-bit WAV
+    // 4. If WAV was requested, transcode intermediate MP3 to standard PCM 16-bit WAV
     if (isWav) {
       try {
         final ffmpeg = FfmpegService.instance;
@@ -189,7 +233,6 @@ class NaturalVietnameseTtsProvider implements TtsProvider {
     client.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
 
     try {
-      // Split text into chunks <= 180 characters on sentence boundaries
       final chunks = _splitTextForGoogleTts(text, maxChars: 180);
       final allAudioBytes = <int>[];
 
@@ -205,8 +248,6 @@ class NaturalVietnameseTtsProvider implements TtsProvider {
         if (resp.statusCode == 200) {
           final chunkBytes = await resp.fold<List<int>>([], (prev, element) => prev..addAll(element));
           allAudioBytes.addAll(chunkBytes);
-        } else {
-          AppLogger.warning('Google TTS chunk HTTP ${resp.statusCode}');
         }
       }
 
@@ -216,7 +257,6 @@ class NaturalVietnameseTtsProvider implements TtsProvider {
 
       final file = File(outputPath);
       await file.writeAsBytes(allAudioBytes, flush: true);
-      AppLogger.info('Synthesized speech via Google TTS: $outputPath (${allAudioBytes.length} bytes)');
     } finally {
       client.close();
     }
@@ -239,7 +279,6 @@ class NaturalVietnameseTtsProvider implements TtsProvider {
           current = StringBuffer();
         }
         if (s.length > maxChars) {
-          // Hard split if a single sentence exceeds limit
           for (int i = 0; i < s.length; i += maxChars) {
             final end = (i + maxChars < s.length) ? i + maxChars : s.length;
             result.add(s.substring(i, end));
@@ -249,17 +288,19 @@ class NaturalVietnameseTtsProvider implements TtsProvider {
         }
       }
     }
-
     if (current.isNotEmpty) {
       result.add(current.toString());
     }
-
     return result;
   }
 
   @override
-  Future<void> cancel() async {}
+  Future<void> cancel() async {
+    // Current one-shot process will complete or timeout
+  }
 
   @override
-  Future<void> dispose() async {}
+  Future<void> dispose() async {
+    _initialized = false;
+  }
 }

@@ -16,7 +16,7 @@ void main() {
       CommandRegistry.instance.initializeDefaults();
     });
 
-    testWidgets('AppSidebar renders categories and handles category collapse toggle',
+    testWidgets('AppSidebar renders visible teacher tools cleanly',
         (tester) async {
       tester.view.physicalSize = const Size(1366, 768);
       tester.view.devicePixelRatio = 1.0;
@@ -38,33 +38,16 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Check Category Headings
-      expect(find.text('GIẢNG DẠY'), findsOneWidget);
-      expect(find.text('TÀI LIỆU'), findsOneWidget);
-      expect(find.text('MEDIA'), findsOneWidget);
-      expect(find.text('HỆ THỐNG'), findsOneWidget);
-
       // Check Brand elements
       expect(find.text('NguyenDu Tool'), findsOneWidget);
       expect(find.text('Phần mềm hỗ trợ giáo viên'), findsOneWidget);
       expect(find.text('Tác giả: Mr. Điện'), findsOneWidget);
 
-      // Check initial modules in categories
-      expect(find.text('Trợ lý giảng dạy'), findsOneWidget);
+      // Check visible teacher suite tools
+      expect(find.text('Trang chủ'), findsOneWidget);
       expect(find.text('Chuyển đổi PDF'), findsOneWidget);
-
-      // Tap on 'GIẢNG DẠY' to collapse it
-      await tester.tap(find.text('GIẢNG DẠY'));
-      await tester.pumpAndSettle();
-
-      // 'Trợ lý giảng dạy' should now be collapsed
-      expect(find.text('Trợ lý giảng dạy'), findsNothing);
-
-      // Tap 'GIẢNG DẠY' again to expand it
-      await tester.tap(find.text('GIẢNG DẠY'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Trợ lý giảng dạy'), findsOneWidget);
+      expect(find.text('Đọc văn bản'), findsOneWidget);
+      expect(find.text('Cài đặt'), findsOneWidget);
     });
 
     testWidgets('CommandPaletteDialog filters commands and navigates on Enter',

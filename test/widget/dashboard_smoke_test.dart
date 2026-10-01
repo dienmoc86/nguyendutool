@@ -10,7 +10,6 @@ import 'package:nguyendu_tool/core/providers/app_providers.dart';
 import 'package:nguyendu_tool/core/providers/provider_registry.dart';
 import 'package:nguyendu_tool/core/providers/secure_storage_abstraction.dart';
 import 'package:nguyendu_tool/core/settings/data/settings_repository.dart';
-import 'package:nguyendu_tool/features/dashboard/presentation/widgets/module_card.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +36,7 @@ void main() {
     }
   });
 
-  testWidgets('Dashboard renders 4 core module cards and recent jobs', (tester) async {
+  testWidgets('Dashboard renders 2 core teacher tools and recent jobs', (tester) async {
     tester.view.physicalSize = const Size(1920, 1080);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() => tester.view.resetPhysicalSize());
@@ -63,21 +62,14 @@ void main() {
     // Verify main welcome title
     expect(find.text('Chào mừng đến với NguyenDu Tool'), findsOneWidget);
 
-    // Verify module cards exist for registered active modules
-    expect(find.byType(ModuleCard), findsAtLeastNWidgets(5));
+    // Verify 2 Core Teacher Tools exist
+    expect(find.text('Chuyển đổi File PDF sang Word'), findsOneWidget);
+    expect(find.text('Chuyển Văn bản thành Giọng nói (TTS)'), findsOneWidget);
+    expect(find.text('2 Công cụ Trọng tâm Sư phạm'), findsOneWidget);
 
-    // Verify core modules by widget type and registry names
-    expect(find.widgetWithText(ModuleCard, 'Trợ lý Giảng dạy (Teaching Suite)'), findsOneWidget);
-    expect(find.widgetWithText(ModuleCard, 'Chuyển đổi PDF & Tài liệu'), findsOneWidget);
-    expect(find.widgetWithText(ModuleCard, 'Quét Đề thi & Số hóa Học liệu'), findsOneWidget);
-    expect(find.widgetWithText(ModuleCard, 'Đọc văn bản & Lồng tiếng (TTS)'), findsOneWidget);
-    expect(find.widgetWithText(ModuleCard, 'Xưởng dựng Video Bài giảng'), findsOneWidget);
-
-    // Verify descriptions from ModuleRegistry
-    expect(find.textContaining('Chuyển đổi PDF sang Microsoft Word'), findsOneWidget);
-    expect(find.textContaining('Kết nối máy scan WIA'), findsOneWidget);
-    expect(find.textContaining('Chuyển văn bản giáo án, bài đọc thành giọng nói'), findsOneWidget);
-    expect(find.textContaining('Dựng video clip bài giảng điện tử'), findsOneWidget);
+    // Verify action buttons
+    expect(find.text('Mở Chuyển đổi PDF'), findsOneWidget);
+    expect(find.text('Mở Đọc văn bản (TTS)'), findsOneWidget);
 
     // Verify Recent Jobs section
     expect(find.textContaining('Tác vụ gần đây'), findsOneWidget);

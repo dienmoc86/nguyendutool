@@ -78,7 +78,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap on PDF Card on Dashboard
-    final pdfCard = find.widgetWithText(ModuleCard, 'Chuyển đổi PDF & Tài liệu');
+    final pdfCard = find.text('Mở Chuyển đổi PDF');
     expect(pdfCard, findsOneWidget);
     await tester.ensureVisible(pdfCard);
     await tester.pumpAndSettle();

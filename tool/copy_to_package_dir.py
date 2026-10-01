@@ -52,6 +52,15 @@ def main():
                 shutil.copytree(src_item, dest_item)
                 copied.append(item)
 
+    # 3. Copy bin/ directory (ffmpeg, edge_tts_runner, dlls)
+    bin_dir = os.path.join(base_dir, "bin")
+    if os.path.exists(bin_dir):
+        dest_bin = os.path.join(target_dir, "bin")
+        if os.path.exists(dest_bin):
+            shutil.rmtree(dest_bin)
+        shutil.copytree(bin_dir, dest_bin)
+        copied.append("bin")
+
     print(f"Successfully copied {len(copied)} items to 'đóng gói tool': {copied}")
 
 if __name__ == "__main__":

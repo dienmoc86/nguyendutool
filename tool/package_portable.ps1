@@ -16,8 +16,19 @@ New-Item -ItemType Directory -Path $staging | Out-Null
 Write-Host "Copying Release build artifacts to staging..."
 Copy-Item -Recurse "build\windows\x64\runner\Release\*" $staging
 Copy-Item "VERSION.json" $staging
+if (Test-Path "bin") {
+    $targetBin = Join-Path $staging "bin"
+    if (-not (Test-Path $targetBin)) {
+        New-Item -ItemType Directory -Path $targetBin | Out-Null
+    }
+    Copy-Item -Recurse -Force "bin\*" $targetBin
+}
 if (Test-Path "licenses") {
-    Copy-Item -Recurse "licenses" $staging
+    $targetLic = Join-Path $staging "licenses"
+    if (-not (Test-Path $targetLic)) {
+        New-Item -ItemType Directory -Path $targetLic | Out-Null
+    }
+    Copy-Item -Recurse -Force "licenses\*" $targetLic
 }
 
 $zipTarget = "$releaseDir\NguyenDuTool_Portable_$appVersion.zip"

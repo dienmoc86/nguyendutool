@@ -783,23 +783,42 @@ class _PdfConverterScreenState extends ConsumerState<PdfConverterScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (item.isCompleted) ...[
-            if (item.docxPath != null)
+            if (item.docxPath != null) ...[
+              Tooltip(
+                message: 'Mở trực tiếp bằng Microsoft Word',
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.description_rounded, size: 16),
+                  label: const Text('Mở Word', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  onPressed: () => WorkspaceManager.openFile(item.docxPath!),
+                ),
+              ),
+              const SizedBox(width: 6),
               IconButton(
-                tooltip: 'Mở giáo án / văn bản Word (.docx)',
-                icon: const Icon(Icons.description_rounded, color: Colors.blue, size: 22),
+                tooltip: 'Mở thư mục chứa tệp Word',
+                icon: const Icon(Icons.folder_open_rounded, color: Colors.blue, size: 20),
                 onPressed: () => WorkspaceManager.openContainingFolder(item.docxPath!),
               ),
+            ],
             if (item.xlsxPath != null)
-              IconButton(
-                tooltip: 'Mở sổ điểm / bảng tính Excel (.xlsx)',
-                icon: const Icon(Icons.table_chart_rounded, color: Colors.green, size: 22),
-                onPressed: () => WorkspaceManager.openContainingFolder(item.xlsxPath!),
-              ),
-            if (item.pptxPath != null)
-              IconButton(
-                tooltip: 'Mở bài giảng trình chiếu PowerPoint (.pptx)',
-                icon: const Icon(Icons.slideshow_rounded, color: Colors.orange, size: 22),
-                onPressed: () => WorkspaceManager.openContainingFolder(item.pptxPath!),
+              Tooltip(
+                message: 'Mở sổ điểm / bảng tính Excel (.xlsx)',
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.table_chart_rounded, size: 16),
+                  label: const Text('Mở Excel', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade700,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  onPressed: () => WorkspaceManager.openFile(item.xlsxPath!),
+                ),
               ),
           ],
           if (!item.isProcessing)

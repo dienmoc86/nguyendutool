@@ -238,4 +238,24 @@ class WorkspaceManager {
       throw FileException('Không thể mở vị trí tệp trong Explorer.', path: filePath, technicalDetails: e.toString());
     }
   }
+
+  /// Opens a file directly with its default system program (e.g., Microsoft Word for .docx).
+  static Future<void> openFile(String filePath) async {
+    try {
+      final file = File(filePath);
+      if (!file.existsSync()) {
+        throw FileException('Tệp không tồn tại.', path: filePath);
+      }
+      if (Platform.isWindows) {
+        await Process.run('cmd.exe', ['/c', 'start', '""', p.normalize(filePath)]);
+      } else if (Platform.isMacOS) {
+        await Process.run('open', [filePath]);
+      } else {
+        await Process.run('xdg-open', [filePath]);
+      }
+    } catch (e, st) {
+      AppLogger.error('Không thể mở tệp: $filePath', e, st);
+      throw FileException('Không thể mở tệp với ứng dụng mặc định.', path: filePath, technicalDetails: e.toString());
+    }
+  }
 }
