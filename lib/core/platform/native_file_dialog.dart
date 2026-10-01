@@ -139,4 +139,13 @@ class NativeFileDialog {
       filterType: 'media',
     );
   }
+
+  /// Prompts user to select an audio or video file for Speech-to-Text transcription.
+  static Future<FilePickerResult> pickSpeechToTextMediaFile() async {
+    return _invokeNativeDialog(
+      title: 'Chọn tệp ghi âm hoặc video bài giảng - NguyenDu Tool',
+      multiSelect: false,
+      filterType: 'media',
+    );
+  }
 }

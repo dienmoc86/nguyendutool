@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import '../logging/app_logger.dart';
+import '../product/product_info.dart';
 
 /// Top-level crash handler and sanitized local crash reporter.
 /// Adheres to Section 38 & 39 of Phase 5 Release Specification:
@@ -77,7 +78,7 @@ class CrashHandler {
         report.writeln('NGUYENDU TOOL - SANITIZED CRASH REPORT');
         report.writeln('================================================================');
         report.writeln('Timestamp: ${now.toIso8601String()}');
-        report.writeln('Version: 1.5.1+8');
+        report.writeln('Version: ${ProductInfo.versionString}');
         report.writeln('Module: $module');
         report.writeln('Platform: ${Platform.operatingSystem} (${Platform.operatingSystemVersion})');
         report.writeln('Dart Version: ${Platform.version.split(' ').first}');

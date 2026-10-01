@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../core/ai/gemini_service.dart';
 import '../../../core/filesystem/workspace_manager.dart';
 import '../../../core/fonts/vietnamese_font_service.dart';
 import '../../../core/providers/app_providers.dart';
@@ -12,6 +13,7 @@ import '../../../core/providers/base_provider.dart';
 import '../../../core/providers/tts_provider.dart';
 import '../../../core/security/credential_service.dart';
 import '../../../core/update/update_notifier.dart';
+import '../../../core/product/product_info.dart';
 import '../../shell/presentation/update_dialog.dart';
 import '../../shell/presentation/support_author_dialog.dart';
 import 'system_diagnostics_screen.dart';
@@ -691,6 +693,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         const SizedBox(height: 20),
 
+        _buildGeminiSettingsHeroCard(context, credService),
+        const SizedBox(height: 24),
+
         _buildCard(
           child: ListView.separated(
             shrinkWrap: true,
@@ -976,6 +981,358 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Widget _buildGeminiSettingsHeroCard(BuildContext context, CredentialService credService) {
+    return FutureBuilder<String?>(
+      future: credService.getGeminiApiKey(),
+      builder: (context, snapshot) {
+        final key = snapshot.data;
+        final hasKey = key != null && key.trim().isNotEmpty;
+
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: hasKey
+                  ? [
+                      AppColors.primary.withOpacity(0.15),
+                      const Color(0xFF10B981).withOpacity(0.08),
+                    ]
+                  : [
+                      const Color(0xFFF59E0B).withOpacity(0.12),
+                      AppColors.darkSurfaceElevated.withOpacity(0.4),
+                    ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: hasKey
+                  ? AppColors.primary.withOpacity(0.4)
+                  : const Color(0xFFF59E0B).withOpacity(0.4),
+              width: 1.5,
+            ),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: hasKey
+                            ? [const Color(0xFF6366F1), const Color(0xFF3B82F6)]
+                            : [const Color(0xFFF59E0B), const Color(0xFFD97706)],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (hasKey ? const Color(0xFF6366F1) : const Color(0xFFF59E0B)).withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 10,
+                          runSpacing: 6,
+                          children: [
+                            const Text(
+                              'Google Gemini AI Hub',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: hasKey ? AppColors.success.withOpacity(0.15) : const Color(0xFFF59E0B).withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: hasKey ? AppColors.success : const Color(0xFFF59E0B),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    hasKey ? Icons.check_circle_rounded : Icons.warning_amber_rounded,
+                                    size: 13,
+                                    color: hasKey ? AppColors.success : const Color(0xFFF59E0B),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    hasKey ? 'Đang hoạt động' : 'Chưa gắn API Key',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: hasKey ? AppColors.success : const Color(0xFFF59E0B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          hasKey
+                              ? 'Trợ lý AI đa phương thức: Bóc băng Audio/Video thành văn bản, tóm tắt bài giảng sư phạm và dịch thuật chuyên sâu.'
+                              : 'Gắn API Key miễn phí từ Google để mở khóa tính năng Bóc băng bài giảng Audio/Video, tóm tắt sư phạm và nhận dạng giọng nói.',
+                          style: TextStyle(fontSize: 13, color: Colors.grey.shade400, height: 1.4),
+                        ),
+                        if (hasKey) ...[
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.darkBackground.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.white12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.vpn_key_rounded, size: 14, color: AppColors.primary),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Mã khóa: ${key.length > 8 ? "${key.substring(0, 7)}...${key.substring(key.length - 4)}" : "******"} (Mã hóa Windows DPAPI an toàn)',
+                                  style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Colors.white70),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1, color: Colors.white10),
+              const SizedBox(height: 14),
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 10,
+                children: [
+                  Text(
+                    'Miễn phí tại Google AI Studio • Tương thích multimodal âm thanh & video',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if (hasKey) ...[
+                        OutlinedButton.icon(
+                          onPressed: () => _testGeminiConnection(context, key),
+                          icon: const Icon(Icons.network_check_rounded, size: 16),
+                          label: const Text('Kiểm tra kết nối'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => _removeGeminiKey(context, credService),
+                          icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.error),
+                          label: const Text('Xóa khóa', style: TextStyle(color: AppColors.error)),
+                        ),
+                      ],
+                      FilledButton.icon(
+                        onPressed: () => _showGeminiDialog(context, credService, existingKey: key),
+                        icon: Icon(hasKey ? Icons.edit_rounded : Icons.key_rounded, size: 16),
+                        label: Text(hasKey ? 'Đổi API Key' : 'Gán Google Gemini API'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: hasKey ? AppColors.primary : const Color(0xFFF59E0B),
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showGeminiDialog(BuildContext context, CredentialService creds, {String? existingKey}) async {
+    final keyController = TextEditingController(text: existingKey ?? '');
+    bool isTesting = false;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.auto_awesome, color: AppColors.primary),
+              SizedBox(width: 10),
+              Text('Cấu hình Google Gemini API'),
+            ],
+          ),
+          content: SizedBox(
+            width: 500,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Khóa API sẽ được mã hóa an toàn bằng Windows DPAPI (CurrentUser) '
+                  'trực tiếp trên máy tính của thầy cô, không lưu plaintext và không gửi ra ngoài.',
+                  style: TextStyle(fontSize: 13, color: Colors.white70),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: keyController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Google Gemini API Key',
+                    hintText: 'AIzaSy...',
+                    prefixIcon: const Icon(Icons.key_rounded),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.content_paste_rounded),
+                      tooltip: 'Dán từ clipboard',
+                      onPressed: () async {
+                        final data = await Clipboard.getData(Clipboard.kTextPlain);
+                        if (data?.text != null) {
+                          keyController.text = data!.text!.trim();
+                          setDialogState(() {});
+                        }
+                      },
+                    ),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '💡 Thầy cô có thể lấy khóa API hoàn toàn miễn phí tại Google AI Studio (aistudio.google.com).',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade400, fontStyle: FontStyle.italic),
+                ),
+                if (isTesting) ...[
+                  const SizedBox(height: 14),
+                  const Row(
+                    children: [
+                      SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                      SizedBox(width: 10),
+                      Text('Đang kiểm tra kết nối với máy chủ Google...', style: TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isTesting ? null : () => Navigator.pop(ctx),
+              child: const Text('Hủy'),
+            ),
+            FilledButton.icon(
+              onPressed: isTesting
+                  ? null
+                  : () async {
+                      final inputKey = keyController.text.trim();
+                      if (inputKey.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Vui lòng nhập API Key.')),
+                        );
+                        return;
+                      }
+
+                      setDialogState(() => isTesting = true);
+                      final isValid = await GeminiService.validateKey(inputKey);
+                      setDialogState(() => isTesting = false);
+
+                      if (isValid) {
+                        await creds.setGeminiApiKey(inputKey);
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        setState(() {});
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: AppColors.success,
+                              content: Text('Đã kết nối và lưu Google Gemini API Key an toàn vào Windows DPAPI!'),
+                            ),
+                          );
+                        }
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: AppColors.error,
+                              content: Text('API Key không hợp lệ hoặc không có kết nối mạng. Vui lòng kiểm tra lại.'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+              icon: const Icon(Icons.check_rounded, size: 16),
+              label: const Text('Kiểm tra & Lưu'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _testGeminiConnection(BuildContext context, String key) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đang kiểm tra kết nối Google Gemini API...')),
+    );
+    final ok = await GeminiService.validateKey(key);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: ok ? AppColors.success : AppColors.error,
+        content: Text(ok
+            ? 'Kết nối thành công! Google Gemini AI đã sẵn sàng hoạt động.'
+            : 'Kiểm tra thất bại. Vui lòng kiểm tra lại khóa API hoặc kết nối Internet.'),
+      ),
+    );
+  }
+
+  Future<void> _removeGeminiKey(BuildContext context, CredentialService creds) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận xóa Google Gemini API Key?'),
+        content: const Text(
+          'Khóa Google Gemini API sẽ bị xóa khỏi kho bảo mật DPAPI của máy tính. '
+          'Các tính năng Bóc băng bài giảng Audio/Video sẽ không thể hoạt động cho đến khi thầy cô gán lại khóa mới.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xóa khóa'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await creds.removeGeminiApiKey();
+      setState(() {});
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã xóa Google Gemini API Key khỏi kho bảo mật.')),
+        );
+      }
+    }
+  }
+
   // 4. Advanced Tab
   Widget _buildAdvancedTab(BuildContext context, dynamic settings, dynamic notifier, WorkspaceManager workspace) {
     return Column(
@@ -1142,13 +1499,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const SizedBox(height: 20),
                 const Divider(),
                 const SizedBox(height: 12),
-                _buildInfoRow('Phiên bản (Version)', '1.5.1 (Release Candidate v1.5.1+8)'),
+                _buildInfoRow('Phiên bản (Version)', '${ProductInfo.version} (Build ${ProductInfo.build}) • ${ProductInfo.currentPhase}'),
                 _buildInfoRow('Kiến trúc (Architecture)', 'Modular Clean Architecture (Flutter Desktop Windows x64)'),
-                _buildInfoRow('Cơ sở dữ liệu (Database)', 'SQLite FFI Cục bộ (Local-First Schema v5)'),
-                _buildInfoRow('Động cơ Video (Engine)', 'FFmpeg 8.0.1 Tích hợp (bin/ffmpeg.exe)'),
+                _buildInfoRow('Cơ sở dữ liệu (Database)', 'SQLite FFI Cục bộ (Local-First Schema v${ProductInfo.schemaVersion})'),
+                _buildInfoRow('Động cơ Video (Engine)', 'FFmpeg ${ProductInfo.ffmpegVersion} Tích hợp (bin/ffmpeg.exe)'),
                 _buildInfoRow('Bảo mật dữ liệu nhạy cảm', 'Windows DPAPI (CurrentUser Scope)'),
-                _buildInfoRow('Trạng thái (Phase Status)', 'Phase 5R Complete - Production Remediation & RC Gate'),
-                _buildInfoRow('Kênh cập nhật (GitHub)', 'https://github.com/dienmoc86/nguyendutool'),
+                _buildInfoRow('Trạng thái (Phase Status)', ProductInfo.currentPhase),
+                _buildInfoRow('Nhà phát triển (Publisher)', '${ProductInfo.publisher} (${ProductInfo.publisherWebsite})'),
+                _buildInfoRow('Kênh cập nhật (GitHub)', ProductInfo.repositoryUrl),
                 const SizedBox(height: 16),
 
                 // Author & Free Software Philosophy Banner

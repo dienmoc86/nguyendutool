@@ -133,3 +133,46 @@ class DatabaseCorruptBootstrapException extends AppException {
   const DatabaseCorruptBootstrapException(super.message, {required this.databasePath, super.technicalDetails, super.stackTrace});
 }
 
+/// Base exception for Assessment Studio operations.
+class AssessmentException extends AppException {
+  const AssessmentException(super.message, {super.technicalDetails, super.stackTrace});
+}
+
+/// Thrown when an exam question is invalid, corrupt, or has unresolvable answers.
+class InvalidExamQuestionException extends AssessmentException {
+  final String? questionId;
+  const InvalidExamQuestionException(super.message, {this.questionId, super.technicalDetails, super.stackTrace});
+}
+
+/// Thrown when an attempt is made to mutate a finalized, immutable exam.
+class FinalizedExamImmutableException extends AssessmentException {
+  final String? paperId;
+  const FinalizedExamImmutableException(super.message, {this.paperId, super.technicalDetails, super.stackTrace});
+}
+
+/// Thrown when exam export preflight checks fail.
+class ExamPreflightException extends AssessmentException {
+  final List<String> blockingErrors;
+  const ExamPreflightException(super.message, {this.blockingErrors = const [], super.technicalDetails, super.stackTrace});
+}
+
+/// Thrown when artifact export or registration fails partially or completely.
+class ExamArtifactExportException extends AssessmentException {
+  final List<String> failedFiles;
+  const ExamArtifactExportException(super.message, {this.failedFiles = const [], super.technicalDetails, super.stackTrace});
+}
+
+/// Thrown when a score representation violates precision or domain rules (Section 10).
+class ScorePrecisionException extends AssessmentException {
+  final double score;
+  const ScorePrecisionException(super.message, {required this.score, super.technicalDetails, super.stackTrace});
+}
+
+/// Thrown when an attempt is made to delete a project containing finalized exams without explicit force confirmation.
+class ProjectHasFinalizedExamsException extends AssessmentException {
+  final String projectId;
+  const ProjectHasFinalizedExamsException(super.message, {required this.projectId, super.technicalDetails, super.stackTrace});
+}
+
+
+

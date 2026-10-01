@@ -1,10 +1,16 @@
+import json
 import os
 import shutil
 import sys
 
 def main():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    release_dir = os.path.join(base_dir, "release", "1.5.1")
+    version_file = os.path.join(base_dir, "VERSION.json")
+    with open(version_file, "r", encoding="utf-8") as f:
+        vdata = json.load(f)
+    app_version = vdata.get("version", "1.7.3")
+
+    release_dir = os.path.join(base_dir, "release", app_version)
     target_dir = os.path.join(base_dir, "đóng gói tool")
 
     # Clean any mojibake directories from earlier PowerShell encoding issues
@@ -23,6 +29,7 @@ def main():
         sys.exit(1)
 
     copied = []
+    # 1. Copy all packaged release files (Installer EXE, Portable ZIP, SHA256 files, SHA256SUMS.txt)
     for f in os.listdir(release_dir):
         src_path = os.path.join(release_dir, f)
         dest_path = os.path.join(target_dir, f)
@@ -30,7 +37,22 @@ def main():
             shutil.copy2(src_path, dest_path)
             copied.append(f)
 
-    print(f"Successfully copied {len(copied)} files to 'đóng gói tool': {copied}")
+    # 2. Copy loose release binaries so user can run immediately from "đóng gói tool" without setup
+    build_release = os.path.join(base_dir, "build", "windows", "x64", "runner", "Release")
+    if os.path.exists(build_release):
+        for item in os.listdir(build_release):
+            src_item = os.path.join(build_release, item)
+            dest_item = os.path.join(target_dir, item)
+            if os.path.isfile(src_item):
+                shutil.copy2(src_item, dest_item)
+                copied.append(item)
+            elif os.path.isdir(src_item):
+                if os.path.exists(dest_item):
+                    shutil.rmtree(dest_item)
+                shutil.copytree(src_item, dest_item)
+                copied.append(item)
+
+    print(f"Successfully copied {len(copied)} items to 'đóng gói tool': {copied}")
 
 if __name__ == "__main__":
     main()

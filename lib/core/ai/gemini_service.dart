@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import '../logging/app_logger.dart';
+import 'ai_model_config.dart';
 
 class GeminiService {
   final String apiKey;
@@ -8,7 +9,7 @@ class GeminiService {
 
   GeminiService({
     required this.apiKey,
-    this.model = 'gemini-1.5-flash',
+    this.model = AiModelConfig.defaultModel,
   });
 
   /// Sends a generation prompt to Google Gemini REST API.
@@ -162,5 +163,141 @@ LƯU Ý QUAN TRỌNG:
 ''';
 
     return await generateText(prompt, temperature: 0.65);
+  }
+
+  /// Quickly validates whether a Gemini API key is functional by calling with a minimal payload.
+  static Future<bool> validateKey(String key, {String model = AiModelConfig.defaultModel}) async {
+    final cleanKey = key.trim();
+    if (cleanKey.isEmpty) return false;
+    final endpoint = Uri.parse(
+      'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$cleanKey',
+    );
+    final payload = {
+      'contents': [
+        {
+          'parts': [
+            {'text': 'ping'}
+          ]
+        }
+      ],
+      'generationConfig': {'maxOutputTokens': 5},
+    };
+    final client = HttpClient();
+    try {
+      final request = await client.postUrl(endpoint).timeout(const Duration(seconds: 15));
+      request.headers.set('Content-Type', 'application/json; charset=UTF-8');
+      request.add(utf8.encode(jsonEncode(payload)));
+      final response = await request.close().timeout(const Duration(seconds: 15));
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    } finally {
+      client.close();
+    }
+  }
+
+  /// Tests the instance connection.
+  Future<bool> testConnection() async {
+    return await validateKey(apiKey, model: model);
+  }
+
+  /// Transcribes audio or video media into timestamped Vietnamese text and pedagogical summary.
+  Future<String> transcribeMedia({
+    required List<int> mediaBytes,
+    required String mimeType,
+    String? prompt,
+    double temperature = 0.2,
+  }) async {
+    final cleanKey = apiKey.trim();
+    if (cleanKey.isEmpty) {
+      throw const FormatException('Chưa cấu hình Google Gemini API Key.');
+    }
+
+    final endpoint = Uri.parse(
+      'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$cleanKey',
+    );
+
+    final effectivePrompt = prompt ??
+'''Bạn là trợ lý AI chuyên nghiệp phục vụ giáo viên và nhà trường Việt Nam.
+Nhiệm vụ của bạn là gỡ băng (speech-to-text) tệp âm thanh/video này thành văn bản tiếng Việt chuẩn mực.
+
+YÊU CẦU BẮT BUỘC:
+1. GỠ BĂNG CHI TIẾT (TRANSCRIPTION):
+- Chuyển toàn bộ lời nói thành văn bản tiếng Việt chuẩn xác 100%, đúng chính tả, có dấu đầy đủ, chấm phẩy ngắt câu tự nhiên.
+- Đặt mốc thời gian dạng [mm:ss] ở đầu mỗi đoạn phát biểu.
+- Phân biệt người nói rõ ràng (ví dụ: [Thầy giáo], [Cô giáo], [Học sinh], [Người nói 1], [Người nói 2]...) nếu nhận diện được.
+
+2. TÓM TẮT & TRỌNG TÂM SƯ PHẠM (EDUCATIONAL SUMMARY):
+Ở cuối văn bản, hãy thêm một phần phân cách bằng dòng "---" và đề mục:
+### TÓM TẮT NỘI DUNG & Ý CHÍNH BÀI HỌC / CUỘC HỌP
+- Chủ đề chính: ...
+- Các luận điểm / kiến thức cốt lõi:
+  + ...
+- Nhiệm vụ học tập / Kết luận:
+  + ...
+- Từ khóa quan trọng: ...''';
+
+    final payload = {
+      'contents': [
+        {
+          'parts': [
+            {
+              'inlineData': {
+                'mimeType': mimeType,
+                'data': base64Encode(mediaBytes),
+              }
+            },
+            {
+              'text': effectivePrompt,
+            }
+          ]
+        }
+      ],
+      'generationConfig': {
+        'temperature': temperature,
+        'maxOutputTokens': 8192,
+      },
+    };
+
+    final client = HttpClient();
+    try {
+      final request = await client.postUrl(endpoint).timeout(const Duration(seconds: 180));
+      request.headers.set('Content-Type', 'application/json; charset=UTF-8');
+      request.add(utf8.encode(jsonEncode(payload)));
+
+      final response = await request.close().timeout(const Duration(seconds: 180));
+      final responseBody = await response.transform(utf8.decoder).join();
+
+      if (response.statusCode != 200) {
+        String errorMsg = 'Lỗi HTTP ${response.statusCode}';
+        try {
+          final errJson = jsonDecode(responseBody) as Map<String, dynamic>;
+          final errObj = errJson['error'] as Map<String, dynamic>?;
+          if (errObj != null && errObj['message'] != null) {
+            errorMsg = errObj['message'].toString();
+          }
+        } catch (_) {}
+        AppLogger.error('Gemini Transcription Error: $errorMsg');
+        throw HttpException('Google Gemini API ($model): $errorMsg');
+      }
+
+      final json = jsonDecode(responseBody) as Map<String, dynamic>;
+      final candidates = json['candidates'] as List<dynamic>?;
+      if (candidates == null || candidates.isEmpty) {
+        throw const FormatException('Không nhận được nội dung phản hồi từ mô hình AI.');
+      }
+
+      final first = candidates.first as Map<String, dynamic>;
+      final content = first['content'] as Map<String, dynamic>?;
+      final parts = content?['parts'] as List<dynamic>?;
+      if (parts == null || parts.isEmpty) {
+        throw const FormatException('Phản hồi từ AI không chứa dữ liệu văn bản gỡ băng.');
+      }
+
+      final text = parts.map((p) => p['text']?.toString() ?? '').join();
+      return text.trim();
+    } finally {
+      client.close();
+    }
   }
 }

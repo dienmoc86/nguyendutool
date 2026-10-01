@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nguyendu_tool/core/providers/provider_registry.dart';
-import 'package:nguyendu_tool/core/providers/tts_provider.dart';
 import 'package:nguyendu_tool/features/text_to_speech/application/tts_service.dart';
 import 'package:nguyendu_tool/features/text_to_speech/infrastructure/natural_vietnamese_tts_provider.dart';
 

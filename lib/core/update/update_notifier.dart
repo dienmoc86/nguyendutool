@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../logging/app_logger.dart';
+import '../product/product_info.dart';
 import 'update_service.dart';
 
 enum UpdateStatus {
@@ -169,7 +169,7 @@ class UpdateNotifier extends StateNotifier<UpdateState> {
 
 /// Provider for UpdateService
 final updateServiceProvider = Provider<UpdateService>((ref) {
-  return UpdateService(currentVersion: '1.5.1', currentBuild: 8);
+  return UpdateService(currentVersion: ProductInfo.version, currentBuild: ProductInfo.build);
 });
 
 /// Reactive StateNotifierProvider for Auto-Update

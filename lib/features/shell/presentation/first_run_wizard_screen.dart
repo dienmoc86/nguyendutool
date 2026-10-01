@@ -4,6 +4,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/diagnostics/diagnostic_status.dart';
 import '../../../core/diagnostics/system_diagnostics_service.dart';
 import '../../../core/filesystem/workspace_manager.dart';
+import '../../../core/product/product_info.dart';
 import '../../../core/providers/app_providers.dart';
 
 /// First-run onboarding wizard for new users (Section 11 & 12).
@@ -69,8 +70,8 @@ class _FirstRunWizardScreenState extends ConsumerState<FirstRunWizardScreen> {
     final ws = ref.read(workspaceManagerProvider);
     final diag = SystemDiagnosticsService(workspaceManager: ws);
     final items = await diag.runFullDiagnostics(
-      appVersion: '1.5.1',
-      databaseSchemaVersion: 5,
+      appVersion: ProductInfo.version,
+      databaseSchemaVersion: ProductInfo.schemaVersion,
     );
     if (mounted) {
       setState(() {
@@ -614,7 +615,7 @@ class _FirstRunWizardScreenState extends ConsumerState<FirstRunWizardScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              'Mọi tài nguyên đã sẵn sàng. Bạn có thể bắt đầu chuyển đổi PDF, scan tài liệu, đọc văn bản và tạo video ngay bây giờ.',
+              'Mọi tài nguyên đã sẵn sàng. Thầy cô có thể bắt đầu Chuyển đổi PDF, Tạo giọng nói AI và Gỡ băng bài giảng ngay bây giờ.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,

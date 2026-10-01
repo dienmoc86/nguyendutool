@@ -5,6 +5,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/diagnostics/diagnostic_status.dart';
 import '../../../core/diagnostics/system_diagnostics_service.dart';
 import '../../../core/filesystem/workspace_manager.dart';
+import '../../../core/product/product_info.dart';
 import '../../../core/providers/app_providers.dart';
 
 /// Comprehensive System Diagnostics Screen (Section 13 & 14).
@@ -33,8 +34,8 @@ class _SystemDiagnosticsScreenState extends ConsumerState<SystemDiagnosticsScree
     final ws = ref.read(workspaceManagerProvider);
     final diag = SystemDiagnosticsService(workspaceManager: ws);
     final results = await diag.runFullDiagnostics(
-      appVersion: '1.5.1',
-      databaseSchemaVersion: 5,
+      appVersion: ProductInfo.version,
+      databaseSchemaVersion: ProductInfo.schemaVersion,
     );
     if (mounted) {
       setState(() {
@@ -49,8 +50,8 @@ class _SystemDiagnosticsScreenState extends ConsumerState<SystemDiagnosticsScree
     final diag = SystemDiagnosticsService(workspaceManager: ws);
     final report = diag.generateSanitizedReport(
       items: _items,
-      appVersion: '1.5.1',
-      databaseSchemaVersion: 5,
+      appVersion: ProductInfo.version,
+      databaseSchemaVersion: ProductInfo.schemaVersion,
     );
 
     await Clipboard.setData(ClipboardData(text: report));
@@ -71,8 +72,8 @@ class _SystemDiagnosticsScreenState extends ConsumerState<SystemDiagnosticsScree
       final diag = SystemDiagnosticsService(workspaceManager: ws);
       final file = await diag.exportDiagnosticReportToFile(
         items: _items,
-        appVersion: '1.5.1',
-        databaseSchemaVersion: 5,
+        appVersion: ProductInfo.version,
+        databaseSchemaVersion: ProductInfo.schemaVersion,
       );
 
       if (mounted) {

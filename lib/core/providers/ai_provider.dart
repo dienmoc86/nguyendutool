@@ -1,3 +1,6 @@
+﻿import 'package:ilocal_client/ilocal_client.dart';
+import 'package:ilocal_protocol/ilocal_protocol.dart';
+
 import '../errors/app_exceptions.dart';
 import 'base_provider.dart';
 
@@ -10,6 +13,60 @@ abstract class AiProvider extends BaseProvider {
 
   /// Generate text completion / analysis
   Future<String> generateText(String prompt, {Map<String, dynamic>? options});
+}
+
+/// Implemented local offline AI provider connected to iLocal AI Shared Core.
+class LocalAiCoreProvider extends AiProvider {
+  final LocalAIClient _client;
+
+  @override
+  final String id = 'ilocal';
+  @override
+  final String name = 'iLocal AI Core (Offline Qwen 2.5 3B)';
+  @override
+  final String description = 'Hệ thống AI Core cục bộ chạy ngoại tuyến, tăng tốc qua GPU NVIDIA, phục vụ soạn bài và RAG.';
+  @override
+  final bool isLocal = true;
+
+  @override
+  ProviderImplementationStatus get implementationStatus => ProviderImplementationStatus.implemented;
+
+  ProviderCapabilityState _capabilityState = ProviderCapabilityState.available;
+
+  @override
+  ProviderCapabilityState get capabilityState => _capabilityState;
+
+  LocalAiCoreProvider({LocalAIClient? client, super.isEnabled = true})
+      : _client = client ?? LocalAIClient(port: 18181);
+
+  @override
+  Future<bool> checkHealth() async {
+    try {
+      final res = await _client.health();
+      final ok = res.isSuccess && res.value.isReady;
+      _capabilityState = ok ? ProviderCapabilityState.available : ProviderCapabilityState.unavailable;
+      return ok;
+    } catch (_) {
+      _capabilityState = ProviderCapabilityState.unavailable;
+      return false;
+    }
+  }
+
+  @override
+  Future<String> generateText(String prompt, {Map<String, dynamic>? options}) async {
+    try {
+      final res = await _client.generate(ChatRequest(
+        model: options?['model'] as String? ?? 'qwen2.5-3b-instruct-q4_k_m',
+        messages: [ChatMessage.user(prompt)],
+      ));
+      if (res.isSuccess) {
+        return res.value.text;
+      }
+      throw ProviderException('Lỗi iLocal AI Core: ${res.error.message}', providerId: id);
+    } catch (e) {
+      throw ProviderException('Không thể sinh văn bản từ iLocal AI: $e', providerId: id);
+    }
+  }
 }
 
 /// Unimplemented placeholder provider for Google Gemini (Requirements 5 & 6).

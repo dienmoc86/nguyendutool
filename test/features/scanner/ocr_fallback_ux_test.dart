@@ -16,9 +16,7 @@ void main() {
         return;
       }
 
-      final tempDir = Directory(p.join(Directory.current.path, 'test', 'temp_ocr_test'));
-      if (!tempDir.existsSync()) tempDir.createSync(recursive: true);
-
+      final tempDir = Directory.systemTemp.createTempSync('ocr_fallback_test_');
       final imgPath = p.join(tempDir.path, 'sample_ocr_fallback.png');
       final dummyImg = img.Image(width: 400, height: 200);
       img.fill(dummyImg, color: img.ColorRgb8(255, 255, 255));

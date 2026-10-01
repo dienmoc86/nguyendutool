@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import '../../core/database/app_database.dart';
 import '../../core/filesystem/workspace_manager.dart';
 import '../../core/media/ffmpeg_service.dart';
+import '../../core/product/product_info.dart';
 import '../../core/security/windows_dpapi_secure_storage.dart';
 import '../../features/file_library/domain/file_entry.dart';
 import '../../features/file_library/infrastructure/file_repository.dart';
@@ -419,7 +420,7 @@ startxref
     final totalDuration = DateTime.now().difference(startTime);
     final report = {
       'timestamp': DateTime.now().toIso8601String(),
-      'version': '1.5.1+8',
+      'version': ProductInfo.versionString,
       'platform': '${Platform.operatingSystem} (${Platform.operatingSystemVersion})',
       'totalDurationMs': totalDuration.inMilliseconds,
       'overallStatus': hasBlocker ? 'FAILED' : 'PASSED',

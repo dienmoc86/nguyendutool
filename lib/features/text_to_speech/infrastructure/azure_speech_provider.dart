@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import '../../../core/errors/app_exceptions.dart';
 import '../../../core/logging/app_logger.dart';
+import '../../../core/product/product_info.dart';
 import '../domain/models/tts_options.dart';
 import '../domain/models/tts_provider_info.dart';
 import '../domain/models/tts_request.dart';
@@ -107,7 +108,7 @@ class AzureSpeechProvider implements TtsProvider {
       _activeRequest!.headers.set('Ocp-Apim-Subscription-Key', _subscriptionKey!);
       _activeRequest!.headers.set('Content-Type', 'application/ssml+xml');
       _activeRequest!.headers.set('X-Microsoft-OutputFormat', audioOutputFormat);
-      _activeRequest!.headers.set('User-Agent', 'NguyenDuTool_TTS_1.5.1');
+      _activeRequest!.headers.set('User-Agent', 'NguyenDuTool_TTS_${ProductInfo.version}');
 
       final ratePct = ((request.options.speed - 1.0) * 100).round();
       final rateStr = ratePct >= 0 ? '+$ratePct%' : '$ratePct%';

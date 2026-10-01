@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:path/path.dart' as p;
 import '../logging/app_logger.dart';
+import '../product/product_info.dart';
 
 /// Representation of an official release update manifest.
 class UpdateManifest {
@@ -107,8 +108,8 @@ class UpdateService {
   final bool isTestMode;
 
   UpdateService({
-    this.currentVersion = '1.5.1',
-    this.currentBuild = 8,
+    this.currentVersion = ProductInfo.version,
+    this.currentBuild = ProductInfo.build,
     this.isTestMode = false,
   });
 

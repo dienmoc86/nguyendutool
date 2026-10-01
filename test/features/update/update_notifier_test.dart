@@ -50,8 +50,6 @@ void main() {
     });
 
     test('Handles update check with mock manifest successfully', () async {
-      final notifier = UpdateNotifier(updateService);
-
       final manifestJson = jsonEncode({
         'version': '1.5.2',
         'build': 9,

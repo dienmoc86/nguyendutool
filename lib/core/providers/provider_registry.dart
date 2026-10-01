@@ -1,4 +1,4 @@
-import '../errors/app_exceptions.dart';
+﻿import '../errors/app_exceptions.dart';
 import '../logging/app_logger.dart';
 import 'ai_provider.dart';
 import 'base_provider.dart';
@@ -20,6 +20,7 @@ class ProviderRegistry {
     register(NaturalVietnameseCoreTtsProvider());
     register(LocalWindowsTtsProvider());
     register(LocalTemplateVideoProvider());
+    register(LocalAiCoreProvider());
 
     // 2. Cloud Implemented Engines (Disabled by default, requires explicit user configuration via DPAPI)
     register(GoogleTtsProvider());

@@ -8,17 +8,25 @@
 ## 1. Project Overview
 **NguyenDu Tool** là ứng dụng Windows Desktop chuẩn **Local-First**, được xây dựng với mục tiêu cung cấp giải pháp chuyển đổi tài liệu, số hóa văn bản giáo dục, tạo giọng nói nhân tạo và dựng bài giảng tự động cho các thầy cô và cán bộ nhà trường mà không phụ thuộc vào nền tảng đám mây hay mạng internet.
 
-- **Phiên bản hiện tại:** `1.5.0+7` (Release Candidate)
-- **Giai đoạn hiện tại:** **Phase 5 - Production Hardening & Release Candidate (CURRENT)**
-- **Lộ trình phát triển (Roadmap):**
-  - **Phase 0 (Foundation Architecture):** COMPLETED (PASS)
-  - **Phase 1 (PDF / OCR / Office):** COMPLETED (PASS)
-  - **Phase 2 (Scanner & Searchable PDF):** COMPLETED (PASS_WITH_HARDWARE_VALIDATION_PENDING)
-  - **Phase 3 (Text-to-Speech & Subtitles):** COMPLETED (PASS)
-  - **Phase 4 (Video Studio Engine):** COMPLETED (PASS)
-  - **Phase 5 (Production Hardening & Release):** CURRENT (PASS_WITH_WARNINGS)
+- **Phiên bản hiện tại:** `1.6.0+9` (Phát hành chính thức bởi iBest Group)
+- **Giai đoạn hiện tại:** **Phase 6A — Product Expansion Foundation (CURRENT)**
+- **Lộ trình mở rộng chính thức (Product Roadmap):**
+  - **Phase 0 (Foundation Architecture):** HOÀN THÀNH (PASS)
+  - **Phase 1 (PDF / OCR / Office):** HOÀN THÀNH (PASS)
+  - **Phase 2 (Scanner & Searchable PDF):** HOÀN THÀNH (PASS)
+  - **Phase 3 (Text-to-Speech & Subtitles):** HOÀN THÀNH (PASS)
+  - **Phase 4 (Video Studio Engine):** HOÀN THÀNH (PASS)
+  - **Phase 5 (Production Hardening & RC Gate):** HOÀN THÀNH (PASS)
+  - **Phase 6A (Product Expansion Foundation):** ĐANG TRIỂN KHAI (CURRENT)
+  - **Phase 6B (Lesson Planner & Teaching Suite Completion):** Kế hoạch tiếp theo
+  - **Phase 7 (Assessment / Quiz / Worksheet Studio):** Kế hoạch
+  - **Phase 8 (Presentation / PowerPoint Studio):** Kế hoạch
+  - **Phase 9 (PDF Toolbox + Office Utilities):** Kế hoạch
+  - **Phase 10 (Speech-to-Text + Subtitle Studio):** Kế hoạch
+  - **Phase 11 (NguyenDu AI Assistant / Document Q&A):** Kế hoạch
+  - **Future (School Utility Pack & Administration):** Dự kiến
 - **Nền tảng chính:** Windows Desktop x64 (Windows 10 Build 19041+ / Windows 11)
-- **Công nghệ lõi:** Flutter Desktop, Dart 3.5.4, SQLite FFI (Schema v5), Riverpod 2.6.1, GoRouter, Archive (ECMA-376 OpenXML), Windows DPAPI, Windows Runtime APIs (Windows.Data.Pdf, Windows.Media.Ocr, System.Speech), FFmpeg & FFprobe 8.0.1 đóng gói sẵn.
+- **Công nghệ lõi:** Flutter Desktop, Dart 3.5.4, SQLite FFI (Schema v6), Riverpod 2.6.1, GoRouter, Archive (ECMA-376 OpenXML), Windows DPAPI, Windows Runtime APIs (Windows.Data.Pdf, Windows.Media.Ocr, System.Speech), FFmpeg & FFprobe 8.0.1 đóng gói sẵn.
 
 ---
 

@@ -10,7 +10,9 @@ import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/settings/presentation/system_diagnostics_screen.dart';
 import '../../features/shell/presentation/app_shell.dart';
 import '../../features/shell/presentation/first_run_wizard_screen.dart';
+import '../../features/assessment_studio/presentation/assessment_studio_screen.dart';
 import '../../features/text_to_speech/presentation/text_to_speech_screen.dart';
+import '../../features/speech_to_text/presentation/speech_to_text_screen.dart';
 import '../../features/video_studio/presentation/video_studio_screen.dart';
 import '../../core/providers/app_providers.dart';
 import 'routes.dart';
@@ -54,6 +56,10 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.dashboard}) {
             builder: (context, state) => const TextToSpeechScreen(),
           ),
           GoRoute(
+            path: AppRoutes.speechToText,
+            builder: (context, state) => const SpeechToTextScreen(),
+          ),
+          GoRoute(
             path: AppRoutes.videoStudio,
             builder: (context, state) => const VideoStudioScreen(),
           ),
@@ -64,6 +70,10 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.dashboard}) {
           GoRoute(
             path: AppRoutes.lessonPlanner,
             builder: (context, state) => const LessonPlannerScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.assessmentStudio,
+            builder: (context, state) => const AssessmentStudioScreen(),
           ),
           GoRoute(
             path: AppRoutes.settings,

@@ -1,6 +1,8 @@
 $ErrorActionPreference = 'Stop'
 
-$releaseDir = "release\1.5.1"
+$versionData = Get-Content "VERSION.json" -Raw | ConvertFrom-Json
+$appVersion = $versionData.version
+$releaseDir = "release\$appVersion"
 if (-not (Test-Path $releaseDir)) {
     New-Item -ItemType Directory -Path $releaseDir | Out-Null
 }
@@ -18,7 +20,7 @@ if (Test-Path "licenses") {
     Copy-Item -Recurse "licenses" $staging
 }
 
-$zipTarget = "$releaseDir\NguyenDuTool_Portable_1.5.1.zip"
+$zipTarget = "$releaseDir\NguyenDuTool_Portable_$appVersion.zip"
 if (Test-Path $zipTarget) {
     Remove-Item -Force $zipTarget
 }
@@ -32,25 +34,29 @@ $zipItem = Get-Item $zipTarget
 Write-Host "Portable ZIP Size: $($zipItem.Length) bytes"
 
 Write-Host "`nComputing SHA-256 for release artifacts..."
-$setupExe = "$releaseDir\NguyenDuTool_Setup_1.5.1.exe"
-$setupHash = (Get-FileHash -Algorithm SHA256 $setupExe).Hash
-$portableHash = (Get-FileHash -Algorithm SHA256 $zipTarget).Hash
+$setupExe = "$releaseDir\NguyenDuTool_Setup_$appVersion.exe"
+if (-not (Test-Path $setupExe)) {
+    Write-Warning "Setup EXE not found at $setupExe"
+    $setupHash = "NOT_FOUND"
+} else {
+    $setupHash = (Get-FileHash -Algorithm SHA256 $setupExe).Hash
+    $setupHash | Set-Content "$setupExe.sha256"
+    Write-Host "Setup EXE: $setupHash"
+}
 
-$setupHash | Set-Content "$setupExe.sha256"
+$portableHash = (Get-FileHash -Algorithm SHA256 $zipTarget).Hash
 $portableHash | Set-Content "$zipTarget.sha256"
+Write-Host "Portable ZIP: $portableHash"
 
 $checksums = @"
-$setupHash  NguyenDuTool_Setup_1.5.1.exe
-$portableHash  NguyenDuTool_Portable_1.5.1.zip
+$setupHash  NguyenDuTool_Setup_$appVersion.exe
+$portableHash  NguyenDuTool_Portable_$appVersion.zip
 "@
 
 $checksums | Set-Content "$releaseDir\SHA256SUMS.txt"
 Write-Host "SHA256SUMS.txt generated in $releaseDir."
-Write-Host "Setup EXE: $setupHash"
-Write-Host "Portable ZIP: $portableHash"
 
 # Copy to user's designated packaging directory: "đóng gói tool"
 Write-Host "`nCopying artifacts to 'đóng gói tool'..."
 python "tool\copy_to_package_dir.py"
 Write-Host "Files successfully copied to 'đóng gói tool'."
-

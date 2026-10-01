@@ -4,7 +4,6 @@ import 'package:archive/archive.dart';
 import 'package:path/path.dart' as p;
 import '../../../core/logging/app_logger.dart';
 import '../domain/models/layout_models.dart';
-import '../domain/models/table_models.dart';
 
 /// Generates standard ECMA-376 / ISO 29500 Microsoft PowerPoint (.pptx) presentation files.
 /// Tailored specifically for school teachers, educators, and administrative staff.

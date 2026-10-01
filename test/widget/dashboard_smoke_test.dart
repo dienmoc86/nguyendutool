@@ -63,21 +63,21 @@ void main() {
     // Verify main welcome title
     expect(find.text('Chào mừng đến với NguyenDu Tool'), findsOneWidget);
 
-    // Verify exactly 5 module cards exist
-    expect(find.byType(ModuleCard), findsNWidgets(5));
+    // Verify module cards exist for registered active modules
+    expect(find.byType(ModuleCard), findsAtLeastNWidgets(5));
 
-    // Verify each specific card by widget type and text
-    expect(find.widgetWithText(ModuleCard, 'Soạn Giáo án AI (5512)'), findsOneWidget);
-    expect(find.widgetWithText(ModuleCard, 'PDF → Word / Excel'), findsOneWidget);
-    expect(find.widgetWithText(ModuleCard, 'Document Scanner'), findsOneWidget);
-    expect(find.widgetWithText(ModuleCard, 'Text to Speech'), findsOneWidget);
-    expect(find.widgetWithText(ModuleCard, 'Video Studio'), findsOneWidget);
+    // Verify core modules by widget type and registry names
+    expect(find.widgetWithText(ModuleCard, 'Trợ lý Giảng dạy (Teaching Suite)'), findsOneWidget);
+    expect(find.widgetWithText(ModuleCard, 'Chuyển đổi PDF & Tài liệu'), findsOneWidget);
+    expect(find.widgetWithText(ModuleCard, 'Quét Đề thi & Số hóa Học liệu'), findsOneWidget);
+    expect(find.widgetWithText(ModuleCard, 'Đọc văn bản & Lồng tiếng (TTS)'), findsOneWidget);
+    expect(find.widgetWithText(ModuleCard, 'Xưởng dựng Video Bài giảng'), findsOneWidget);
 
-    // Verify subtitles
-    expect(find.textContaining('Chuyển đổi PDF, nhận diện tài liệu scan'), findsOneWidget);
-    expect(find.textContaining('Scan, làm sạch tài liệu và tạo PDF searchable'), findsOneWidget);
-    expect(find.textContaining('Chuyển văn bản thành giọng nói và xuất MP3/WAV'), findsOneWidget);
-    expect(find.textContaining('Tạo video từ nội dung, giọng đọc, hình ảnh'), findsOneWidget);
+    // Verify descriptions from ModuleRegistry
+    expect(find.textContaining('Chuyển đổi PDF sang Microsoft Word'), findsOneWidget);
+    expect(find.textContaining('Kết nối máy scan WIA'), findsOneWidget);
+    expect(find.textContaining('Chuyển văn bản giáo án, bài đọc thành giọng nói'), findsOneWidget);
+    expect(find.textContaining('Dựng video clip bài giảng điện tử'), findsOneWidget);
 
     // Verify Recent Jobs section
     expect(find.textContaining('Tác vụ gần đây'), findsOneWidget);

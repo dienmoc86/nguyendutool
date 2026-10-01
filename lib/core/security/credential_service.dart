@@ -64,6 +64,29 @@ class CredentialService {
     await removeCredential(keyAzureSpeechRegion);
   }
 
+  Future<String?> getGeminiApiKey() async {
+    final key = await getCredential(keyGeminiApiKey);
+    if (key != null && key.trim().isNotEmpty) return key.trim();
+    final altKey = await getCredential('google_gemini_api_key');
+    if (altKey != null && altKey.trim().isNotEmpty) return altKey.trim();
+    return null;
+  }
+
+  Future<void> setGeminiApiKey(String key) async {
+    await saveCredential(keyGeminiApiKey, key);
+    await saveCredential('google_gemini_api_key', key);
+  }
+
+  Future<void> removeGeminiApiKey() async {
+    await removeCredential(keyGeminiApiKey);
+    await removeCredential('google_gemini_api_key');
+  }
+
+  Future<bool> hasGeminiApiKey() async {
+    final key = await getGeminiApiKey();
+    return key != null && key.isNotEmpty;
+  }
+
   /// Utility to mask secret for display in UI (e.g. `AIza...1234`).
   static String maskSecret(String? secret) {
     if (secret == null || secret.isEmpty) return 'Chưa cấu hình';

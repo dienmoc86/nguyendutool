@@ -1,8 +1,8 @@
-; Inno Setup Script for NguyenDu Tool v1.5.1
-; Production Remediation & Release Candidate Gate (Phase 5R)
+; Inno Setup Script for NguyenDu Tool v1.6.2
+; Phase 6B-R - Teaching Suite Remediation
 
 #define MyAppName "NguyenDu Tool"
-#define MyAppVersion "1.5.1"
+#define MyAppVersion "1.7.3"
 #define MyAppPublisher "iBest Group"
 #define MyAppExeName "NguyenDuTool.exe"
 
@@ -19,8 +19,8 @@ AllowNoIcons=yes
 ; Per-user privileges (does not require Administrator UAC by default)
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline dialog
-OutputDir=..\release\1.5.1
-OutputBaseFilename=NguyenDuTool_Setup_1.5.1
+OutputDir=..\release\1.7.3
+OutputBaseFilename=NguyenDuTool_Setup_1.7.3
 SetupIconFile=..\windows\runner\resources\app_icon.ico
 Compression=lzma2/max
 SolidCompression=yes
@@ -29,11 +29,11 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayName={#MyAppName}
 UninstallDisplayIcon={app}\{#MyAppExeName}
-VersionInfoVersion=1.5.1.8
+VersionInfoVersion=1.7.3.15
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription=NguyenDu Tool Desktop Application by iBest Group
 VersionInfoProductName={#MyAppName}
-VersionInfoProductVersion=1.5.1
+VersionInfoProductVersion=1.7.3
 
 [Languages]
 Name: "vi"; MessagesFile: "Vietnamese.isl"

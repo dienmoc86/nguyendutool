@@ -138,6 +138,21 @@ class WindowsDpapiSecureStorage implements ISecureStorage {
 
   bool get isDpapiAvailable => _isDpapiAvailable;
 
+  /// Performs a live in-memory encrypt/decrypt roundtrip probe to verify DPAPI operational health.
+  bool probeRoundtrip() {
+    if (!_isDpapiAvailable || _cryptProtectData == null || _cryptUnprotectData == null) {
+      return false;
+    }
+    try {
+      const probeValue = '__probe_test_secret_roundtrip__';
+      final encrypted = _encrypt(probeValue);
+      final decrypted = _decrypt(encrypted);
+      return decrypted == probeValue;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _ensureLoaded() async {
     if (_initialized && _cachedVault != null) return;
     _cachedVault = {};

@@ -66,25 +66,41 @@ class ProjectRepository {
     // Sync to SQLite database
     try {
       final db = await _appDatabase.database;
-      await db.insert(
+      final existing = await db.query(
         'video_projects',
-        {
-          'id': project.id,
-          'name': project.name,
-          'aspect_ratio': project.aspectRatio.name,
-          'resolution': project.resolution.name,
-          'fps': project.fps,
-          'duration_seconds': project.totalDurationSeconds,
-          'background_music_path': project.backgroundMusicPath,
-          'background_music_volume': project.backgroundMusicVolume,
-          'background_music_loop': project.backgroundMusicLoop ? 1 : 0,
-          'audio_ducking': project.audioDucking.name,
-          'export_settings_json': jsonEncode(project.exportSettings.toJson()),
-          'created_at': project.createdAt.toIso8601String(),
-          'updated_at': DateTime.now().toIso8601String(),
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
+        where: 'id = ?',
+        whereArgs: [project.id],
+        limit: 1,
       );
+      final projectMap = {
+        'id': project.id,
+        'name': project.name,
+        'aspect_ratio': project.aspectRatio.name,
+        'resolution': project.resolution.name,
+        'fps': project.fps,
+        'duration_seconds': project.totalDurationSeconds,
+        'background_music_path': project.backgroundMusicPath,
+        'background_music_volume': project.backgroundMusicVolume,
+        'background_music_loop': project.backgroundMusicLoop ? 1 : 0,
+        'audio_ducking': project.audioDucking.name,
+        'export_settings_json': jsonEncode(project.exportSettings.toJson()),
+        'created_at': project.createdAt.toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      if (existing.isEmpty) {
+        await db.insert(
+          'video_projects',
+          projectMap,
+          conflictAlgorithm: ConflictAlgorithm.abort,
+        );
+      } else {
+        await db.update(
+          'video_projects',
+          projectMap,
+          where: 'id = ?',
+          whereArgs: [project.id],
+        );
+      }
 
       // Sync scenes
       final batch = db.batch();

@@ -27,6 +27,8 @@ class ErrorMapper {
           return 'Ứng dụng đã đang chạy trong một phiên làm việc khác.';
         case DatabaseCorruptBootstrapException():
           return 'Cơ sở dữ liệu ứng dụng bị hỏng hoặc lỗi cấu trúc: ${error.message}';
+        case AssessmentException():
+          return 'Lỗi khảo thí & đánh giá: ${error.message}';
       }
     }
 

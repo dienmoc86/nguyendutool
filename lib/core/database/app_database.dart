@@ -9,10 +9,14 @@ import 'migrations/v1_to_v2.dart';
 import 'migrations/v2_to_v3.dart';
 import 'migrations/v3_to_v4.dart';
 import 'migrations/v4_to_v5.dart';
+import 'migrations/v5_to_v6.dart';
+import 'migrations/v6_to_v7.dart';
+import 'migrations/v7_to_v8.dart';
+import 'migrations/v8_to_v9.dart';
 
 /// Local SQLite database manager for NguyenDu Tool.
 class AppDatabase {
-  static const int databaseVersion = 5;
+  static const int databaseVersion = 9;
   static const String databaseFileName = 'nguyendu_tool.db';
   static const String legacyDatabaseFileName = 'ischool_tools.db';
 
@@ -74,13 +78,18 @@ class AppDatabase {
         dbPath,
         options: OpenDatabaseOptions(
           version: databaseVersion,
+          onConfigure: (db) async {
+            await db.execute('PRAGMA foreign_keys = ON;');
+          },
           onCreate: (db, version) async {
+            await db.execute('PRAGMA foreign_keys = ON;');
             AppLogger.info('Creating SQLite database tables (version $version)...');
             for (final ddl in DatabaseTables.allCreationStatements) {
               await db.execute(ddl);
             }
           },
           onUpgrade: (db, oldVersion, newVersion) async {
+            await db.execute('PRAGMA foreign_keys = ON;');
             AppLogger.info('Upgrading SQLite database from $oldVersion to $newVersion');
             if (oldVersion < 2) {
               await V1ToV2Migration.migrate(db);
@@ -94,11 +103,24 @@ class AppDatabase {
             if (oldVersion < 5) {
               await V4ToV5Migration.migrate(db);
             }
+            if (oldVersion < 6) {
+              await V5ToV6Migration.migrate(db);
+            }
+            if (oldVersion < 7) {
+              await V6ToV7Migration.migrate(db);
+            }
+            if (oldVersion < 8) {
+              await V7ToV8Migration.migrate(db);
+            }
+            if (oldVersion < 9) {
+              await V8ToV9Migration.migrate(db);
+            }
           },
         ),
       );
 
-      AppLogger.info('AppDatabase opened successfully at: $dbPath');
+      await _db!.execute('PRAGMA foreign_keys = ON;');
+      AppLogger.info('AppDatabase opened successfully with foreign keys enforced at: $dbPath');
     } catch (e, st) {
       AppLogger.error('Lỗi khởi tạo cơ sở dữ liệu SQLite', e, st);
       throw AppDatabaseException('Không thể khởi tạo cơ sở dữ liệu.', technicalDetails: e.toString(), stackTrace: st);

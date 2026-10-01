@@ -28,19 +28,35 @@ class SqliteScanSessionRepository implements ScanSessionRepository {
 
       // Wrap in atomic transaction with ConflictAlgorithm.replace to prevent concurrency races and UNIQUE constraint crashes
       await _db.transaction((txn) async {
-        // 1. Upsert scan_sessions table
-        await txn.insert(
+        // 1. Safe insert or update scan_sessions table without replace
+        final existing = await txn.query(
           'scan_sessions',
-          {
-            'id': session.id,
-            'name': session.name,
-            'source_type': session.sourceType.name,
-            'status': session.status,
-            'created_at': session.createdAt.toIso8601String(),
-            'updated_at': now,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace,
+          where: 'id = ?',
+          whereArgs: [session.id],
+          limit: 1,
         );
+        final sessionMap = {
+          'id': session.id,
+          'name': session.name,
+          'source_type': session.sourceType.name,
+          'status': session.status,
+          'created_at': session.createdAt.toIso8601String(),
+          'updated_at': now,
+        };
+        if (existing.isEmpty) {
+          await txn.insert(
+            'scan_sessions',
+            sessionMap,
+            conflictAlgorithm: ConflictAlgorithm.abort,
+          );
+        } else {
+          await txn.update(
+            'scan_sessions',
+            sessionMap,
+            where: 'id = ?',
+            whereArgs: [session.id],
+          );
+        }
 
         // 2. Refresh scan_pages table
         await txn.delete('scan_pages', where: 'session_id = ?', whereArgs: [session.id]);
@@ -63,7 +79,7 @@ class SqliteScanSessionRepository implements ScanSessionRepository {
               'ocr_json': page.ocrResult != null ? jsonEncode(page.ocrResult!.toJson()) : null,
               'created_at': page.createdAt.toIso8601String(),
             },
-            conflictAlgorithm: ConflictAlgorithm.replace,
+            conflictAlgorithm: ConflictAlgorithm.abort,
           );
         }
         await batch.commit(noResult: true);

@@ -10,6 +10,8 @@ import '../jobs/domain/job_model.dart';
 import '../settings/application/settings_notifier.dart';
 import '../settings/data/settings_repository.dart';
 import '../settings/domain/app_settings_model.dart';
+import '../modules/module_usage_service.dart';
+import '../projects/data/workspace_project_repository.dart';
 import '../security/windows_dpapi_secure_storage.dart';
 import 'provider_registry.dart';
 import 'secure_storage_abstraction.dart';
@@ -69,4 +71,16 @@ final fileLibraryNotifierProvider = StateNotifierProvider<FileLibraryNotifier, A
   final repo = ref.watch(fileRepositoryProvider);
   final ws = ref.watch(workspaceManagerProvider);
   return FileLibraryNotifier(repo, ws);
+});
+
+/// Module usage service provider.
+final moduleUsageServiceProvider = Provider<ModuleUsageService>((ref) {
+  final db = ref.watch(databaseProvider);
+  return ModuleUsageService(appDatabase: db);
+});
+
+/// Workspace project repository provider.
+final workspaceProjectRepositoryProvider = Provider<WorkspaceProjectRepository>((ref) {
+  final db = ref.watch(databaseProvider);
+  return WorkspaceProjectRepository(appDatabase: db);
 });

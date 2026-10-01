@@ -55,6 +55,11 @@ void main() {
       renderer: TestPdfRenderer(tempDir: workspaceManager.tempDir),
     );
 
+    tester.view.physicalSize = const Size(1366, 768);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -73,8 +78,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap on PDF Card on Dashboard
-    final pdfCard = find.widgetWithText(ModuleCard, 'PDF → Word / Excel');
+    final pdfCard = find.widgetWithText(ModuleCard, 'Chuyển đổi PDF & Tài liệu');
     expect(pdfCard, findsOneWidget);
+    await tester.ensureVisible(pdfCard);
+    await tester.pumpAndSettle();
     await tester.tap(pdfCard);
     await tester.pumpAndSettle();
 
@@ -85,6 +92,8 @@ void main() {
     // Tap on Settings in sidebar
     final settingsNav = find.text('Cài đặt');
     expect(settingsNav, findsOneWidget);
+    await tester.ensureVisible(settingsNav);
+    await tester.pumpAndSettle();
     await tester.tap(settingsNav);
     await tester.pumpAndSettle();
 
