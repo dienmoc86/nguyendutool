@@ -143,16 +143,21 @@ class AppSidebar extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.coffee_rounded, color: Color(0xFFFFA726), size: 15),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 1.5),
+                        child: Icon(Icons.support_agent_rounded, color: Color(0xFFFFA726), size: 15),
+                      ),
                       const SizedBox(width: 6),
                       const Expanded(
                         child: Text(
-                          'Tác giả: Mr. Điện',
-                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
+                          'Nhận viết tool & nâng cấp theo yêu cầu',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, height: 1.25),
+                          maxLines: 2,
                         ),
                       ),
+                      const SizedBox(width: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                         decoration: BoxDecoration(
@@ -170,9 +175,9 @@ class AppSidebar extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 5),
                   const Text(
-                    'Miễn phí 100%. Nhận viết tool & nâng cấp theo yêu cầu riêng.',
+                    'Miễn phí 100% dành cho giáo viên & nhà trường.',
                     style: TextStyle(fontSize: 10, color: AppColors.darkTextSecondary, height: 1.25),
                   ),
                   const SizedBox(height: 6),
@@ -221,11 +226,11 @@ class AppSidebar extends ConsumerWidget {
                   const SizedBox(height: 6),
                   SizedBox(
                     width: double.infinity,
-                    height: 24,
+                    height: 25,
                     child: OutlinedButton.icon(
                       onPressed: () => SupportAuthorDialog.show(context),
-                      icon: const Icon(Icons.favorite_outline_rounded, size: 12, color: Color(0xFFFFA726)),
-                      label: const Text('Mời cà phê ☕', style: TextStyle(fontSize: 10)),
+                      icon: const Icon(Icons.contact_support_outlined, size: 12, color: Color(0xFFFFA726)),
+                      label: const Text('Vui lòng liên hệ', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600)),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFFFFA726),
                         side: BorderSide(color: const Color(0xFFFFA726).withOpacity(0.4)),
@@ -241,8 +246,8 @@ class AppSidebar extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: IconButton(
-                tooltip: 'Mr. Điện (0917.764.111) - ibestgroup.vn\nMời tác giả tách cà phê ☕',
-                icon: const Icon(Icons.coffee_rounded, color: Color(0xFFFFA726), size: 20),
+                tooltip: 'Nhận viết tool & nâng cấp theo yêu cầu\n0917.764.111 - ibestgroup.vn\nVui lòng liên hệ',
+                icon: const Icon(Icons.support_agent_rounded, color: Color(0xFFFFA726), size: 20),
                 onPressed: () => SupportAuthorDialog.show(context),
               ),
             ),

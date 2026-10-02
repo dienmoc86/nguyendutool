@@ -1531,14 +1531,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           const Icon(Icons.favorite_rounded, color: Color(0xFFE91E63), size: 20),
                           const SizedBox(width: 8),
                           const Text(
-                            'Phần mềm Giáo dục Miễn phí 100% — Tác giả Mr. Điện',
+                            'Phần mềm Giáo dục Miễn phí 100% — Nhận viết tool & nâng cấp theo yêu cầu',
                             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                           const Spacer(),
                           ElevatedButton.icon(
                             onPressed: () => SupportAuthorDialog.show(context),
-                            icon: const Icon(Icons.coffee_rounded, size: 15, color: Colors.white),
-                            label: const Text('Mời cà phê ☕'),
+                            icon: const Icon(Icons.contact_support_rounded, size: 15, color: Colors.white),
+                            label: const Text('Vui lòng liên hệ'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFFF9800),
                               foregroundColor: Colors.white,
@@ -1550,7 +1550,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       const SizedBox(height: 10),
                       const Text(
-                        'Phần mềm được phát triển phi lợi nhuận dành tặng quý Thầy/Cô và các Nhà trường. Tác giả sẵn sàng tư vấn, nâng cấp chức năng hoặc lập trình phần mềm/công cụ riêng biệt theo yêu cầu của Thầy/Cô.',
+                        'Phần mềm được phát triển phi lợi nhuận dành tặng quý Thầy/Cô và các Nhà trường. Đội ngũ sẵn sàng tư vấn, nâng cấp chức năng hoặc lập trình phần mềm/công cụ riêng biệt theo yêu cầu của Thầy/Cô.',
                         style: TextStyle(fontSize: 12.5, height: 1.4),
                       ),
                       const SizedBox(height: 12),

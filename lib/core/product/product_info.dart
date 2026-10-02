@@ -20,7 +20,7 @@ class ProductInfo {
   static const String publisher = 'iBest Group';
   static const String publisherWebsite = 'https://ibestgroup.vn';
   static const String supportHotline = '0917.764.111';
-  static const String authorName = 'Mr. Điện (Nguyễn Khắc Điện)';
+  static const String authorName = 'Nguyễn Khắc Điện';
   static const String repositoryUrl = 'https://github.com/dienmoc86/nguyendutool';
   static const String architecture = 'windows-x64';
   static const String minimumWindowsVersion = 'Windows 10 (19041+) / Windows 11 (x64)';

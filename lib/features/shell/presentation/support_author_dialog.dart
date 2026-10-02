@@ -79,7 +79,7 @@ class SupportAuthorDialog extends StatelessWidget {
                         Row(
                           children: [
                             const Text(
-                              'Đồng hành & Ủng hộ Tác giả',
+                              'Hỗ trợ Kỹ thuật & Nhận viết tool theo yêu cầu',
                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(width: 8),
@@ -180,7 +180,7 @@ class SupportAuthorDialog extends StatelessWidget {
                         const Icon(Icons.badge_rounded, color: AppColors.primaryLight, size: 20),
                         const SizedBox(width: 8),
                         const Text(
-                          'Thông tin Tác giả & Hỗ trợ Kỹ thuật',
+                          'Thông tin Liên hệ & Hỗ trợ Kỹ thuật',
                           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                         const Spacer(),
@@ -199,9 +199,9 @@ class SupportAuthorDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     _buildContactItem(
-                      icon: Icons.person_rounded,
-                      label: 'Tác giả phát triển:',
-                      value: 'Mr. Điện',
+                      icon: Icons.support_agent_rounded,
+                      label: 'Dịch vụ phát triển:',
+                      value: 'Nhận viết tool & nâng cấp theo yêu cầu',
                       onCopy: null,
                     ),
                     const SizedBox(height: 8),
@@ -369,7 +369,7 @@ class SupportAuthorDialog extends StatelessWidget {
                                 const Row(
                                   children: [
                                     Text('Chủ tài khoản: ', style: TextStyle(fontSize: 11.5, color: AppColors.darkTextSecondary)),
-                                    Text('NGUYỄN KHẮC ĐIỆN (Mr. Điện)', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                                    Text('NGUYỄN KHẮC ĐIỆN', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ],
@@ -421,7 +421,7 @@ class SupportAuthorDialog extends StatelessWidget {
                               ElevatedButton.icon(
                                 onPressed: _openZalo,
                                 icon: const Icon(Icons.chat_bubble_outline_rounded, size: 13),
-                                label: const Text('Nhắn Zalo tác giả'),
+                                label: const Text('Nhắn Zalo liên hệ'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF0288D1),
                                   foregroundColor: Colors.white,
