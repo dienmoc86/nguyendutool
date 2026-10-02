@@ -1606,6 +1606,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     final isDark = Theme.of(context).brightness == Brightness.dark;
                     final updateState = ref.watch(updateNotifierProvider);
                     final notifier = ref.read(updateNotifierProvider.notifier);
+                    final settings = ref.watch(settingsNotifierProvider);
+                    final settingsNotifier = ref.read(settingsNotifierProvider.notifier);
 
                     return Container(
                       padding: const EdgeInsets.all(16),
@@ -1656,12 +1658,58 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           Text(
                             updateState.isAvailable
                                 ? 'Phát hiện bản cập nhật mới v${updateState.manifest!.version}! Bạn có thể cập nhật ngay bây giờ.'
-                                : 'Ứng dụng tự động kết nối máy chủ GitHub để thông báo khi có tính năng mới.',
+                                : 'Ứng dụng tự động kết nối máy chủ GitHub để cập nhật tính năng mới nhất.',
                             style: TextStyle(
                               fontSize: 12.5,
                               color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                             ),
                           ),
+                          const SizedBox(height: 12),
+
+                          // Toggles for automatic behaviors
+                          SwitchListTile.adaptive(
+                            contentPadding: EdgeInsets.zero,
+                            title: const Text('Tự động kiểm tra bản cập nhật khi mở ứng dụng',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                            subtitle: const Text('Chủ động dò tìm phiên bản mới ngay khi khởi động công cụ',
+                                style: TextStyle(fontSize: 11.5)),
+                            value: settings.autoCheckUpdates,
+                            onChanged: (val) => settingsNotifier.updateAutoCheckUpdates(val),
+                          ),
+                          SwitchListTile.adaptive(
+                            contentPadding: EdgeInsets.zero,
+                            title: const Text('Tự động tải & cập nhật khi phát hiện phiên bản mới',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                            subtitle: const Text('Tự động tải gói cài đặt ngầm và thông báo sẵn sàng khởi chạy',
+                                style: TextStyle(fontSize: 11.5)),
+                            value: settings.autoInstallUpdates,
+                            onChanged: (val) => settingsNotifier.updateAutoInstallUpdates(val),
+                          ),
+
+                          if (updateState.status == UpdateStatus.error && updateState.errorMessage != null) ...[
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.error.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.info_outline_rounded, color: AppColors.error, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      updateState.errorMessage!,
+                                      style: const TextStyle(fontSize: 11.5, color: AppColors.error),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+
                           const SizedBox(height: 12),
                           Row(
                             children: [
@@ -1672,7 +1720,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                         if (updateState.isAvailable) {
                                           UpdateDialog.show(context);
                                         } else {
-                                          notifier.checkForUpdates(silent: false);
+                                          notifier.checkForUpdates(
+                                            silent: false,
+                                            customManifestUrl: settings.customUpdateManifestUrl.isNotEmpty
+                                                ? settings.customUpdateManifestUrl
+                                                : null,
+                                            autoDownload: settings.autoInstallUpdates,
+                                          );
                                         }
                                       },
                                 icon: Icon(

@@ -7,6 +7,9 @@ class AppSettingsModel {
   final bool developerMode;
   final bool telemetryEnabled;
   final bool firstRunCompleted;
+  final bool autoCheckUpdates;
+  final bool autoInstallUpdates;
+  final String customUpdateManifestUrl;
 
   const AppSettingsModel({
     this.language = 'vi',
@@ -16,6 +19,9 @@ class AppSettingsModel {
     this.developerMode = false,
     this.telemetryEnabled = false,
     this.firstRunCompleted = false,
+    this.autoCheckUpdates = true,
+    this.autoInstallUpdates = false,
+    this.customUpdateManifestUrl = '',
   });
 
   AppSettingsModel copyWith({
@@ -26,6 +32,9 @@ class AppSettingsModel {
     bool? developerMode,
     bool? telemetryEnabled,
     bool? firstRunCompleted,
+    bool? autoCheckUpdates,
+    bool? autoInstallUpdates,
+    String? customUpdateManifestUrl,
   }) {
     return AppSettingsModel(
       language: language ?? this.language,
@@ -35,6 +44,9 @@ class AppSettingsModel {
       developerMode: developerMode ?? this.developerMode,
       telemetryEnabled: telemetryEnabled ?? this.telemetryEnabled,
       firstRunCompleted: firstRunCompleted ?? this.firstRunCompleted,
+      autoCheckUpdates: autoCheckUpdates ?? this.autoCheckUpdates,
+      autoInstallUpdates: autoInstallUpdates ?? this.autoInstallUpdates,
+      customUpdateManifestUrl: customUpdateManifestUrl ?? this.customUpdateManifestUrl,
     );
   }
 
@@ -47,6 +59,9 @@ class AppSettingsModel {
       'developer_mode': developerMode ? '1' : '0',
       'telemetry_enabled': telemetryEnabled ? '1' : '0',
       'first_run_completed': firstRunCompleted ? '1' : '0',
+      'auto_check_updates': autoCheckUpdates ? '1' : '0',
+      'auto_install_updates': autoInstallUpdates ? '1' : '0',
+      'custom_update_manifest_url': customUpdateManifestUrl,
     };
   }
 
@@ -59,6 +74,9 @@ class AppSettingsModel {
       developerMode: map['developer_mode'] == '1',
       telemetryEnabled: map['telemetry_enabled'] == '1',
       firstRunCompleted: map['first_run_completed'] == '1',
+      autoCheckUpdates: map['auto_check_updates'] != '0', // Default true
+      autoInstallUpdates: map['auto_install_updates'] == '1',
+      customUpdateManifestUrl: map['custom_update_manifest_url'] ?? '',
     );
   }
 }

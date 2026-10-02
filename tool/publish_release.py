@@ -11,41 +11,13 @@ if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8')
 
 REPO = "dienmoc86/nguyendutool"
-TAG = "v1.5.1"
-NAME = "NguyenDu Tool v1.5.1 - Official Release"
 
-BODY = """## 🌟 NguyenDu Tool v1.5.1 (Official Release)
-
-Bộ công cụ máy tính đa năng dành cho giáo viên, nhà trường và văn phòng giáo dục. Hoạt động ngoại tuyến 100% (**Local-First**) trên Windows 10/11 x64.
-
-### 🚀 Tính năng nổi bật:
-1. **Chuyển đổi tài liệu & OCR tiếng Việt:**
-   - Trích xuất chữ trực tiếp và OCR offline tiếng Việt (WinRT OCR).
-   - Tự động nhận diện bảng biểu (`TableDetector`).
-   - Xuất Microsoft Word (`.docx`) và Excel (`.xlsx`) thuần OpenXML không cần cài Microsoft Office.
-2. **Số hóa tài liệu & Searchable PDF:**
-   - Kết nối máy scan qua chuẩn Windows WIA 2.0.
-   - Xử lý ảnh: Tự căn thẳng (deskew ±10°), sửa méo góc (perspective warp), khử bóng đổ.
-   - Xuất Searchable PDF (ISO 32000) với lớp text ẩn `3 Tr` tra cứu và copy chữ trực tiếp.
-3. **Giọng đọc AI & Phụ đề (TTS):**
-   - Giọng đọc Windows SAPI & WinRT OneCore ngoại tuyến.
-   - Chuẩn hóa văn bản tiếng Việt bảo thủ (ngày tháng, số đo, tiền tệ, từ viết tắt).
-   - Xuất âm thanh WAV PCM và MP3, tự động sinh phụ đề đồng bộ `.srt` và `.vtt`.
-4. **Xưởng dựng Video bài giảng (Video Studio):**
-   - Động cơ FFmpeg & FFprobe 8.0.1 tích hợp.
-   - Dựng clip bài giảng, thuyết minh TTS tự khớp thời lượng, phụ đề chữ cứng, nhạc nền với Audio Ducking.
-5. **Tự động Cập nhật (In-App Auto-Update):**
-   - Ứng dụng tự động thông báo khi có bản cập nhật mới trên GitHub Releases.
-   - Tải về có thanh tiến trình trực quan, xác thực mã băm SHA-256 an toàn.
-   - Tự động nâng cấp ngầm (Silent Upgrade) và khởi động lại phiên bản mới mượt mà.
-
----
-
-### 📦 Tệp cài đặt & Tải về:
-* **Bộ cài đặt (Setup):** `NguyenDuTool_Setup_1.5.1.exe` (Khuyên dùng - Cài đặt tự động, không cần quyền Admin).
-* **Bản chạy ngay (Portable):** `NguyenDuTool_Portable_1.5.1.zip` (Giải nén chạy ngay, thích hợp copy USB).
-* **Kiểm tra mã băm:** `SHA256SUMS.txt`.
-"""
+def get_version_info():
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    version_file = os.path.join(base_dir, "VERSION.json")
+    with open(version_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("version", "1.7.3"), data.get("build", 15)
 
 def get_git_token():
     p = subprocess.Popen(['git', 'credential', 'fill'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -58,6 +30,37 @@ def get_git_token():
     return token
 
 def main():
+    version, build = get_version_info()
+    tag = f"v{version}"
+    name = f"NguyenDu Tool v{version} - Official Release"
+    body = f"""## 🌟 NguyenDu Tool v{version} (Official Release)
+
+Bộ công cụ máy tính số hóa & trợ lý toàn diện dành cho Giáo viên, Nhà trường và Văn phòng Giáo dục. Hoạt động ngoại tuyến 100% (**Local-First**) trên Windows 10/11 x64.
+
+### 🚀 Tính năng nổi bật trong bản {version}:
+1. **Chuyển đổi tài liệu PDF sang Word, Excel, PowerPoint:**
+   - Trích xuất chữ, công thức toán và bảng biểu chính xác.
+   - Thao tác 1-click mở ngay trên Word/PowerPoint và mở thư mục chứa tệp.
+2. **Quét đề thi & Số hóa học liệu (Document Scanner):**
+   - Động cơ kép nhận diện máy scan chuẩn WIA và camera điện thoại / USB webcam.
+   - Tự động uốn nắn góc phẳng (perspective warp), khử bóng mờ, làm trắng nền giấy.
+   - Xuất Searchable PDF tra cứu và copy chữ trực tiếp.
+3. **Chuyển văn bản thành giọng nói AI (Text-to-Speech):**
+   - Động cơ giọng đọc sư phạm tự nhiên (Hoài My, Nam Minh, Mai, Ngọc) tốc độ cao (~1.5s).
+   - Nghe ngay và copy nhanh vào USB đem lên lớp cắm loa phát.
+4. **Tự động Cập nhật Trực tiếp (Auto-Update):**
+   - Tự động kiểm tra bản mới ngay khi mở ứng dụng.
+   - Tải về và tự động nâng cấp ngầm (Silent Upgrade) mượt mà.
+
+---
+
+### 📦 Tệp cài đặt & Tải về:
+* **Bộ cài đặt (Setup):** `NguyenDuTool_Setup_{version}.exe` (Khuyên dùng - Cài đặt tự động).
+* **Bản chạy ngay (Portable):** `NguyenDuTool_Portable_{version}.zip` (Giải nén chạy ngay, thích hợp copy USB).
+* **Kiểm tra mã băm:** `SHA256SUMS.txt`.
+"""
+
+    print(f"Bắt đầu phát hành bản: {name} (Tag: {tag})")
     print("1. Lấy thông tin xác thực từ Git Credential Manager...")
     token = get_git_token()
     if not token:
@@ -65,13 +68,13 @@ def main():
         sys.exit(1)
     print("-> Đã lấy được GitHub token thành công.")
 
-    print(f"2. Tạo Git tag {TAG} và đẩy lên GitHub...")
-    subprocess.run(['git', 'tag', '-f', TAG, '-m', f'Release {TAG}'], check=True)
-    subprocess.run(['git', 'push', '-f', 'origin', TAG], check=True)
+    print(f"2. Tạo Git tag {tag} và đẩy lên GitHub...")
+    subprocess.run(['git', 'tag', '-f', tag, '-m', f'Release {tag}'], check=True)
+    subprocess.run(['git', 'push', '-f', 'origin', tag], check=True)
     print("-> Đã đẩy Git tag lên GitHub.")
 
     print("3. Kiểm tra xem Release đã tồn tại trên GitHub chưa...")
-    check_url = f"https://api.github.com/repos/{REPO}/releases/tags/{TAG}"
+    check_url = f"https://api.github.com/repos/{REPO}/releases/tags/{tag}"
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github.v3+json",
@@ -83,10 +86,10 @@ def main():
     try:
         with urllib.request.urlopen(req) as resp:
             release = json.loads(resp.read().decode('utf-8'))
-            print(f"-> Release {TAG} đã tồn tại (ID: {release['id']}). Sẽ cập nhật tệp tài sản (assets).")
+            print(f"-> Release {tag} đã tồn tại (ID: {release['id']}). Sẽ cập nhật tệp tài sản (assets).")
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            print(f"-> Release {TAG} chưa có, tiến hành tạo mới...")
+            print(f"-> Release {tag} chưa có, tiến hành tạo mới...")
         else:
             print(f"Lỗi kiểm tra release: {e}")
             sys.exit(1)
@@ -94,9 +97,9 @@ def main():
     if not release:
         create_url = f"https://api.github.com/repos/{REPO}/releases"
         payload = json.dumps({
-            "tag_name": TAG,
-            "name": NAME,
-            "body": BODY,
+            "tag_name": tag,
+            "name": name,
+            "body": body,
             "draft": False,
             "prerelease": False
         }).encode('utf-8')
@@ -109,9 +112,9 @@ def main():
     upload_url_base = upload_url_template.split("{")[0]
 
     files_to_upload = [
-        ("release/1.5.1/NguyenDuTool_Setup_1.5.1.exe", "NguyenDuTool_Setup_1.5.1.exe", "application/octet-stream"),
-        ("release/1.5.1/NguyenDuTool_Portable_1.5.1.zip", "NguyenDuTool_Portable_1.5.1.zip", "application/zip"),
-        ("release/1.5.1/SHA256SUMS.txt", "SHA256SUMS.txt", "text/plain"),
+        (f"release/{version}/NguyenDuTool_Setup_{version}.exe", f"NguyenDuTool_Setup_{version}.exe", "application/octet-stream"),
+        (f"release/{version}/NguyenDuTool_Portable_{version}.zip", f"NguyenDuTool_Portable_{version}.zip", "application/zip"),
+        (f"release/{version}/SHA256SUMS.txt", "SHA256SUMS.txt", "text/plain"),
         ("RELEASE_MANIFEST.json", "RELEASE_MANIFEST.json", "application/json")
     ]
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/router/routes.dart';
+import '../../../core/providers/app_providers.dart';
 import '../../../core/shortcuts/app_shortcuts.dart';
 import '../../../core/update/update_notifier.dart';
 import 'command_palette_dialog.dart';
@@ -26,10 +27,19 @@ class _AppShellState extends ConsumerState<AppShell> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Non-blocking background check for updates 3 seconds after startup
-      Future.delayed(const Duration(seconds: 3), () {
+      // Check for updates shortly after startup based on user settings
+      Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
-          ref.read(updateNotifierProvider.notifier).checkForUpdates(silent: true);
+          final settings = ref.read(settingsNotifierProvider);
+          if (settings.autoCheckUpdates) {
+            ref.read(updateNotifierProvider.notifier).checkForUpdates(
+              silent: true,
+              customManifestUrl: settings.customUpdateManifestUrl.isNotEmpty
+                  ? settings.customUpdateManifestUrl
+                  : null,
+              autoDownload: settings.autoInstallUpdates,
+            );
+          }
         }
       });
     });

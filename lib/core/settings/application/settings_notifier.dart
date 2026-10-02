@@ -44,6 +44,24 @@ class SettingsNotifier extends StateNotifier<AppSettingsModel> {
     AppLogger.info('First run setup marked completed.');
   }
 
+  Future<void> updateAutoCheckUpdates(bool enabled) async {
+    state = state.copyWith(autoCheckUpdates: enabled);
+    await _repository.saveSetting('auto_check_updates', enabled ? '1' : '0');
+    AppLogger.info('Auto check updates set to: $enabled');
+  }
+
+  Future<void> updateAutoInstallUpdates(bool enabled) async {
+    state = state.copyWith(autoInstallUpdates: enabled);
+    await _repository.saveSetting('auto_install_updates', enabled ? '1' : '0');
+    AppLogger.info('Auto install updates set to: $enabled');
+  }
+
+  Future<void> updateCustomUpdateManifestUrl(String url) async {
+    state = state.copyWith(customUpdateManifestUrl: url.trim());
+    await _repository.saveSetting('custom_update_manifest_url', url.trim());
+    AppLogger.info('Custom update manifest URL updated.');
+  }
+
   Future<void> resetToDefaults() async {
     await _repository.resetSettings();
     state = const AppSettingsModel();

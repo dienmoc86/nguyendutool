@@ -11,6 +11,8 @@ class UpdateManifest {
   final int build;
   final String installerUrl;
   final String sha256;
+  final String? portableUrl;
+  final String? portableSha256;
   final String releaseNotesUrl;
   final String? releaseNotes;
   final String? minimumSupportedVersion;
@@ -23,6 +25,8 @@ class UpdateManifest {
     required this.build,
     required this.installerUrl,
     required this.sha256,
+    this.portableUrl,
+    this.portableSha256,
     required this.releaseNotesUrl,
     this.releaseNotes,
     this.minimumSupportedVersion,
@@ -32,15 +36,21 @@ class UpdateManifest {
   });
 
   factory UpdateManifest.fromJson(Map<String, dynamic> json) {
-    if (!json.containsKey('version') || !json.containsKey('installerUrl') || !json.containsKey('sha256')) {
+    final version = json['version'] as String?;
+    final installerUrl = (json['installerUrl'] ?? json['downloadUrl'] ?? json['portableUrl']) as String?;
+    final sha256Value = (json['sha256'] ?? json['installerSha256'] ?? json['portableSha256']) as String?;
+
+    if (version == null || installerUrl == null || sha256Value == null || sha256Value.trim().isEmpty) {
       throw const FormatException('Update manifest missing required fields: version, installerUrl, sha256');
     }
 
     return UpdateManifest(
-      version: json['version'] as String,
+      version: version,
       build: json['build'] is int ? json['build'] as int : int.tryParse(json['build']?.toString() ?? '0') ?? 0,
-      installerUrl: json['installerUrl'] as String,
-      sha256: (json['sha256'] as String).trim().toUpperCase(),
+      installerUrl: installerUrl,
+      sha256: sha256Value.trim().toUpperCase(),
+      portableUrl: json['portableUrl'] as String?,
+      portableSha256: (json['portableSha256'] as String?)?.trim().toUpperCase(),
       releaseNotesUrl: json['releaseNotesUrl'] as String? ?? '',
       releaseNotes: json['releaseNotes'] as String?,
       minimumSupportedVersion: json['minimumSupportedVersion'] as String?,
@@ -55,6 +65,8 @@ class UpdateManifest {
         'build': build,
         'installerUrl': installerUrl,
         'sha256': sha256,
+        if (portableUrl != null) 'portableUrl': portableUrl,
+        if (portableSha256 != null) 'portableSha256': portableSha256,
         'releaseNotesUrl': releaseNotesUrl,
         if (releaseNotes != null) 'releaseNotes': releaseNotes,
         if (minimumSupportedVersion != null) 'minimumSupportedVersion': minimumSupportedVersion,
@@ -242,25 +254,47 @@ class UpdateService {
     }
   }
 
-  /// Checks for available updates directly from GitHub Releases or raw manifest fallback.
+  /// Checks for available updates directly from GitHub Releases, raw manifest fallback, or custom URL.
   Future<UpdateCheckResult> checkForGitHubRelease({
     String repository = defaultGitHubRepo,
     String targetChannel = 'stable',
+    String? customManifestUrl,
   }) async {
     try {
+      // 0. Priority: Custom Manifest URL if configured
+      if (customManifestUrl != null && customManifestUrl.trim().isNotEmpty) {
+        try {
+          final result = await checkForUpdates(
+            manifestUrl: customManifestUrl.trim(),
+            targetChannel: targetChannel,
+          );
+          if (result.errorMessage == null && result.manifest != null) {
+            AppLogger.info('Checked updates via custom manifest URL: v${result.manifest!.version} (available: ${result.isUpdateAvailable})');
+            return result;
+          }
+        } catch (_) {}
+      }
+
       // 1. First attempt: Raw RELEASE_MANIFEST.json on main branch (high performance, no GitHub API rate limit)
-      final rawManifestUrl = 'https://raw.githubusercontent.com/$repository/main/RELEASE_MANIFEST.json';
-      try {
-        final result = await checkForUpdates(
-          manifestUrl: rawManifestUrl,
-          targetChannel: targetChannel,
-        );
-        if (result.errorMessage == null && result.manifest != null) {
-          AppLogger.info('Checked updates via GitHub raw manifest: v${result.manifest!.version} (available: ${result.isUpdateAvailable})');
-          return result;
+      final rawUrls = [
+        'https://raw.githubusercontent.com/$repository/main/RELEASE_MANIFEST.json',
+        'https://raw.githubusercontent.com/$repository/master/RELEASE_MANIFEST.json',
+        'https://ibestgroup.vn/releases/nguyendutool/RELEASE_MANIFEST.json',
+      ];
+
+      for (final rawUrl in rawUrls) {
+        try {
+          final result = await checkForUpdates(
+            manifestUrl: rawUrl,
+            targetChannel: targetChannel,
+          );
+          if (result.errorMessage == null && result.manifest != null) {
+            AppLogger.info('Checked updates via manifest ($rawUrl): v${result.manifest!.version} (available: ${result.isUpdateAvailable})');
+            return result;
+          }
+        } catch (_) {
+          // Continue to next mirror
         }
-      } catch (_) {
-        // Fallback to GitHub Releases API below
       }
 
       // 2. Second attempt: GitHub Releases API
@@ -295,16 +329,21 @@ class UpdateService {
 
         final assets = (releaseJson['assets'] as List<dynamic>? ?? []);
         String? installerUrl;
+        String? portableUrl;
         String sha256 = '';
 
-        // Search for setup executable asset
+        // Search for setup executable asset or portable zip
         for (final dynamic asset in assets) {
           if (asset is Map<String, dynamic>) {
             final name = (asset['name'] as String? ?? '').toLowerCase();
             final downloadUrl = asset['browser_download_url'] as String?;
-            if (downloadUrl != null && name.endsWith('.exe')) {
-              if (name.contains('setup') || installerUrl == null) {
-                installerUrl = downloadUrl;
+            if (downloadUrl != null) {
+              if (name.endsWith('.exe')) {
+                if (name.contains('setup') || installerUrl == null) {
+                  installerUrl = downloadUrl;
+                }
+              } else if (name.endsWith('.zip') && name.contains('portable')) {
+                portableUrl = downloadUrl;
               }
             }
           }
@@ -327,11 +366,13 @@ class UpdateService {
           }
         }
 
+        installerUrl ??= portableUrl;
+
         if (installerUrl == null) {
           return UpdateCheckResult(
             isUpdateAvailable: false,
             currentVersion: currentVersion,
-            errorMessage: 'Không tìm thấy tệp cài đặt (.exe) trong bản phát hành $tagName.',
+            errorMessage: 'Không tìm thấy tệp cài đặt (.exe) hoặc gói portable (.zip) trong bản phát hành $tagName.',
           );
         }
 
@@ -339,6 +380,7 @@ class UpdateService {
           version: tagName,
           build: 0,
           installerUrl: installerUrl,
+          portableUrl: portableUrl,
           sha256: sha256,
           releaseNotesUrl: htmlUrl,
           releaseNotes: releaseNotes.isNotEmpty ? releaseNotes : 'Bản cập nhật mới trên GitHub Releases.',
@@ -361,7 +403,7 @@ class UpdateService {
       return UpdateCheckResult(
         isUpdateAvailable: false,
         currentVersion: currentVersion,
-        errorMessage: 'Không thể kết nối đến máy chủ GitHub: $e',
+        errorMessage: 'Không thể kết nối đến máy chủ cập nhật (Nếu kho GitHub ở chế độ Private, vui lòng chuyển sang Public hoặc cấu hình máy chủ cập nhật). Lỗi: $e',
       );
     }
   }
@@ -474,7 +516,7 @@ class UpdateService {
     }
   }
 
-  /// Executes the downloaded installer silently and relaunches the application cleanly.
+  /// Executes the downloaded installer or extracts portable zip, then relaunches the application cleanly.
   Future<void> executeSilentUpdateAndRelaunch({
     required File installerFile,
     String? targetExePath,
@@ -483,7 +525,21 @@ class UpdateService {
     final tempDir = installerFile.parent;
     final scriptFile = File(p.join(tempDir.path, 'apply_update_${DateTime.now().millisecondsSinceEpoch}.cmd'));
 
-    final scriptContent = '''
+    final String scriptContent;
+    if (installerFile.path.toLowerCase().endsWith('.zip')) {
+      final appDir = File(exeToLaunch).parent.path;
+      scriptContent = '''
+@echo off
+chcp 65001 >nul
+echo Dang cap nhat ban Portable NguyenDu Tool...
+timeout /t 2 /nobreak >nul
+powershell -Command "Expand-Archive -Path '${installerFile.path}' -DestinationPath '$appDir' -Force"
+start "" "$exeToLaunch"
+del "%~f0"
+exit
+''';
+    } else {
+      scriptContent = '''
 @echo off
 chcp 65001 >nul
 echo Dang cap nhat NguyenDu Tool len phien ban moi...
@@ -493,9 +549,10 @@ start "" "$exeToLaunch"
 del "%~f0"
 exit
 ''';
+    }
 
     await scriptFile.writeAsString(scriptContent);
-    AppLogger.info('Launching update script: \${scriptFile.path}');
+    AppLogger.info('Launching update script: ${scriptFile.path}');
 
     await Process.start(
       'cmd.exe',

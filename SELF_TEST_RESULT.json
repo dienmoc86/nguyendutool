@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-10-02T09:01:08.173839",
+  "timestamp": "2026-10-02T16:35:50.943264",
   "version": "1.7.3+15",
   "platform": "windows (\"Windows 10 Pro\" 10.0 (Build 26200))",
-  "totalDurationMs": 19268,
+  "totalDurationMs": 28943,
   "overallStatus": "PASSED",
   "exitCode": 0,
   "checks": [
@@ -10,49 +10,49 @@
       "name": "workspace_bootstrap",
       "status": "passed",
       "details": "Khởi tạo không gian làm việc thành công tại: C:\\Users\\dienmoc\\Documents\\NguyenDu Tool",
-      "durationMs": 56
+      "durationMs": 75
     },
     {
       "name": "sqlite_database_init",
       "status": "passed",
       "details": "Khởi tạo AppDatabase thành công (Schema v9, 36 bảng).",
-      "durationMs": 241
+      "durationMs": 233
     },
     {
       "name": "windows_dpapi_secure_storage",
       "status": "passed",
       "details": "DPAPI mã hóa/giải mã thành công, không dùng Base64 plaintext fallback.",
-      "durationMs": 77
+      "durationMs": 83
     },
     {
       "name": "ffmpeg_service_discovery",
       "status": "passed",
       "details": "FFmpeg: ffmpeg version 8.0.1 Copyright (c) 2000-2025 the FFmpeg developers (Bundled Release FFmpeg) tại D:\\CODE\\Nguyen Du tool\\bin\\ffmpeg.exe, FFprobe: D:\\CODE\\Nguyen Du tool\\bin\\ffprobe.exe",
-      "durationMs": 432
+      "durationMs": 543
     },
     {
       "name": "windows_tts_synthesis",
       "status": "passed",
       "details": "Đã tổng hợp thành công tệp WAV (339512 bytes) qua Giọng đọc Windows Cục bộ (Offline SAPI / OneCore). Phát hiện 6 giọng đọc.",
-      "durationMs": 11274
+      "durationMs": 18819
     },
     {
       "name": "video_studio_mp4_render",
       "status": "passed",
       "details": "Đã xuất thành công video MP4 (50397 bytes, thời lượng 3.0s, 1280x720) qua FFmpeg Engine.",
-      "durationMs": 1209
+      "durationMs": 1695
     },
     {
       "name": "pdf_analyzer_operation",
       "status": "passed",
       "details": "Phân tích tệp PDF thành công (1 trang, 214 ký tự, loại: text).",
-      "durationMs": 5894
+      "durationMs": 7389
     },
     {
       "name": "library_repository_persistence",
       "status": "passed",
       "details": "Ghi và truy vấn tệp trong FileRepository SQLite thành công.",
-      "durationMs": 71
+      "durationMs": 94
     }
   ]
 }

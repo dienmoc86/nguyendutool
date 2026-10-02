@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
@@ -247,10 +248,6 @@ class UpdateDialog extends ConsumerWidget {
                 ),
               ),
 
-            // Actions
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
                 if (!updateState.isDownloading && updateState.status != UpdateStatus.readyToInstall) ...[
                   TextButton(
                     onPressed: () {
@@ -259,6 +256,19 @@ class UpdateDialog extends ConsumerWidget {
                     },
                     child: const Text('Để sau'),
                   ),
+                  if (manifest?.portableUrl != null || manifest?.releaseNotesUrl.isNotEmpty == true) ...[
+                    const SizedBox(width: 8),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.folder_zip_outlined, size: 16),
+                      label: const Text('Tải bản Portable (.zip)'),
+                      onPressed: () {
+                        final url = manifest?.portableUrl ?? manifest?.releaseNotesUrl;
+                        if (url != null && Platform.isWindows) {
+                          Process.run('cmd.exe', ['/c', 'start', url]);
+                        }
+                      },
+                    ),
+                  ],
                   const SizedBox(width: 10),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
@@ -272,8 +282,6 @@ class UpdateDialog extends ConsumerWidget {
                     },
                   ),
                 ],
-              ],
-            ),
           ],
         ),
       ),

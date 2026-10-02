@@ -63,9 +63,15 @@ class UpdateNotifier extends StateNotifier<UpdateState> {
   UpdateNotifier(this._updateService, {this.repository = UpdateService.defaultGitHubRepo})
       : super(const UpdateState());
 
-  /// Checks for available updates from GitHub.
+  /// Checks for available updates from GitHub, raw manifest, or custom mirror.
   /// If [silent] is true, only updates state if a new version is found, ignoring non-critical network errors.
-  Future<void> checkForUpdates({bool silent = false, String? targetRepository}) async {
+  /// If [autoDownload] is true, automatically begins download & installation upon finding a newer version.
+  Future<void> checkForUpdates({
+    bool silent = false,
+    String? targetRepository,
+    String? customManifestUrl,
+    bool autoDownload = false,
+  }) async {
     if (state.isDownloading) return;
 
     state = state.copyWith(
@@ -76,7 +82,10 @@ class UpdateNotifier extends StateNotifier<UpdateState> {
 
     try {
       final repoToUse = targetRepository ?? repository;
-      final result = await _updateService.checkForGitHubRelease(repository: repoToUse);
+      final result = await _updateService.checkForGitHubRelease(
+        repository: repoToUse,
+        customManifestUrl: customManifestUrl,
+      );
 
       if (result.isUpdateAvailable && result.manifest != null) {
         state = state.copyWith(
@@ -85,6 +94,11 @@ class UpdateNotifier extends StateNotifier<UpdateState> {
           downloadProgress: 0.0,
         );
         AppLogger.info('Found new update on GitHub: v${result.manifest!.version}');
+
+        if (autoDownload) {
+          AppLogger.info('Auto-download enabled. Starting update download for v${result.manifest!.version}...');
+          downloadAndInstall();
+        }
       } else {
         if (result.errorMessage != null && !silent) {
           state = state.copyWith(
