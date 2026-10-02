@@ -1,8 +1,8 @@
 {
   "product": "NguyenDu Tool",
-  "version": "1.7.3",
-  "build": 15,
-  "releaseDate": "2026-09-30T22:15:00+07:00",
+  "version": "1.7.4",
+  "build": 16,
+  "releaseDate": "2026-10-03T02:00:00+07:00",
   "architecture": "windows-x64",
   "minimumWindowsVersion": "Windows 10 (19041+) / Windows 11 (x64)",
   "databaseSchema": 9,
