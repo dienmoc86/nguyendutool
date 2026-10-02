@@ -2,8 +2,12 @@ $releaseDir = (Resolve-Path "build\windows\x64\runner\Release").Path
 $exePath = Join-Path $releaseDir "NguyenDuTool.exe"
 
 Write-Host "Launching NguyenDu Tool from: $exePath"
-$proc = Start-Process -FilePath $exePath -WorkingDirectory $releaseDir -PassThru
+$psi = New-Object System.Diagnostics.ProcessStartInfo
+$psi.FileName = $exePath
+$psi.WorkingDirectory = $releaseDir
+$psi.UseShellExecute = $true
 
+$proc = [System.Diagnostics.Process]::Start($psi)
 Start-Sleep -Seconds 3
 
 if ($proc.HasExited) {
