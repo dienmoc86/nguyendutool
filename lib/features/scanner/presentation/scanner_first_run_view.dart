@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../../app/theme/app_colors.dart';
 import '../domain/models/scanner_device.dart';
+import '../infrastructure/windows_camera_service.dart';
 
 /// First-run onboarding screen offering clear quick actions to start scanning or importing.
 class ScannerFirstRunView extends StatelessWidget {
   final List<ScannerDevice> availableScanners;
+  final List<CameraDeviceInfo> availableCameras;
+  final VoidCallback onRefreshDevices;
   final VoidCallback onScanClick;
   final VoidCallback onImportImagesClick;
   final VoidCallback onCaptureCameraClick;
@@ -12,6 +16,8 @@ class ScannerFirstRunView extends StatelessWidget {
   const ScannerFirstRunView({
     super.key,
     required this.availableScanners,
+    this.availableCameras = const [],
+    required this.onRefreshDevices,
     required this.onScanClick,
     required this.onImportImagesClick,
     required this.onCaptureCameraClick,
@@ -22,12 +28,13 @@ class ScannerFirstRunView extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasScanner = availableScanners.isNotEmpty;
+    final hasCamera = availableCameras.isNotEmpty;
 
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 960),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -52,7 +59,7 @@ class ScannerFirstRunView extends StatelessWidget {
                 ),
                 child: const Icon(Icons.document_scanner_rounded, color: Colors.white, size: 38),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
               const Text(
                 'Quét & Số Hóa Tài Liệu',
                 style: TextStyle(
@@ -63,43 +70,104 @@ class ScannerFirstRunView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Chuyển đổi văn bản giấy thành PDF có thể tìm kiếm chữ (Searchable PDF), Word (.docx) hoặc ảnh sắc nét.',
+                'Hỗ trợ máy scan bàn WIA, camera điện thoại (DroidCam/Iriun/USB) và chọn ảnh trực tiếp từ điện thoại / máy tính.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
                 ),
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 24),
 
-              // Hardware Scanner Status Alert
-              if (!hasScanner)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 28),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF332A15) : const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF785E1A) : const Color(0xFFFDE68A),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.amber[800], size: 20),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Không tìm thấy máy scan vật lý được kết nối (WIA 2.0). Bạn vẫn có thể nhập ảnh, PDF hoặc camera.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
-                        ),
-                      ),
-                    ],
+              // Hardware Status Bar & Device Refresh
+              Container(
+                margin: const EdgeInsets.only(bottom: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
                   ),
                 ),
+                child: Row(
+                  children: [
+                    // Scanner Status Chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: hasScanner ? Colors.green.withOpacity(0.12) : Colors.amber.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            hasScanner ? Icons.check_circle_rounded : Icons.info_outline,
+                            size: 15,
+                            color: hasScanner ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            hasScanner ? 'Máy scan: ${availableScanners.first.name}' : 'Chưa có máy scan WIA',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: hasScanner
+                                  ? (isDark ? const Color(0xFF34D399) : const Color(0xFF065F46))
+                                  : (isDark ? const Color(0xFFFBBF24) : const Color(0xFF92400E)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // Camera Status Chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: hasCamera ? Colors.blue.withOpacity(0.12) : Colors.grey.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            hasCamera ? Icons.camera_alt_rounded : Icons.camera_alt_outlined,
+                            size: 15,
+                            color: hasCamera ? const Color(0xFF0284C7) : Colors.grey,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            hasCamera ? 'Camera: ${availableCameras.first.name}' : 'Chưa nhận camera',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: hasCamera
+                                  ? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0369A1))
+                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    // Refresh Button
+                    TextButton.icon(
+                      onPressed: onRefreshDevices,
+                      icon: const Icon(Icons.refresh_rounded, size: 16),
+                      label: const Text('Tìm lại thiết bị (F5)', style: TextStyle(fontSize: 12.5)),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
               // 4 Quick-Action Cards Grid
               Wrap(
@@ -108,34 +176,36 @@ class ScannerFirstRunView extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 children: [
                   _ActionCard(
-                    title: 'Quét từ máy scan',
+                    title: 'Quét từ máy scan WIA',
                     subtitle: hasScanner
                         ? 'Kết nối trực tiếp ${availableScanners.first.name}'
-                        : 'Không tìm thấy máy scan vật lý',
+                        : 'Dùng cho máy scan bàn Canon, HP, Epson cắm cổng USB',
                     icon: Icons.scanner_rounded,
                     color: const Color(0xFF0284C7),
                     isEnabled: hasScanner,
                     onTap: onScanClick,
                   ),
                   _ActionCard(
-                    title: 'Nhập tệp hình ảnh',
-                    subtitle: 'Hỗ trợ JPG, PNG, BMP, TIFF, WebP (chọn nhiều ảnh cùng lúc)',
-                    icon: Icons.photo_library_rounded,
-                    color: const Color(0xFF10B981),
-                    isEnabled: true,
-                    onTap: onImportImagesClick,
-                  ),
-                  _ActionCard(
-                    title: 'Chụp bằng camera',
-                    subtitle: 'Sử dụng webcam hoặc camera chụp tài liệu USB',
+                    title: 'Chụp bằng camera & ĐT',
+                    subtitle: hasCamera
+                        ? 'Chụp ngay từ ${availableCameras.first.name}'
+                        : 'Dùng camera điện thoại (DroidCam/Iriun/USB) hoặc webcam',
                     icon: Icons.camera_alt_rounded,
                     color: const Color(0xFF8B5CF6),
                     isEnabled: true,
                     onTap: onCaptureCameraClick,
                   ),
                   _ActionCard(
+                    title: 'Nhập ảnh từ ĐT / Máy tính',
+                    subtitle: 'Cắm cáp USB chọn ảnh từ điện thoại hoặc máy (JPG, PNG, HEIC, TIFF)',
+                    icon: Icons.photo_library_rounded,
+                    color: const Color(0xFF10B981),
+                    isEnabled: true,
+                    onTap: onImportImagesClick,
+                  ),
+                  _ActionCard(
                     title: 'Nhập tài liệu PDF',
-                    subtitle: 'Rasterize PDF để căn chỉnh góc, khử nghiêng, làm sạch và OCR',
+                    subtitle: 'Nắn thẳng góc tài liệu, khử bóng, làm trắng nền và OCR xuất Word/PDF',
                     icon: Icons.picture_as_pdf_rounded,
                     color: const Color(0xFFF59E0B),
                     isEnabled: true,

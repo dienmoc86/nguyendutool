@@ -46,6 +46,7 @@ void main() {
       // Check visible teacher suite tools
       expect(find.text('Trang chủ'), findsOneWidget);
       expect(find.text('Chuyển đổi PDF'), findsOneWidget);
+      expect(find.text('Quét tài liệu'), findsOneWidget);
       expect(find.text('Đọc văn bản'), findsOneWidget);
       expect(find.text('Cài đặt'), findsOneWidget);
     });

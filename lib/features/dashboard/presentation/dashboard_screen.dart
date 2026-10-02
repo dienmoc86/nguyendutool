@@ -57,7 +57,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Phần mềm hỗ trợ Thầy Cô: Chuyển đổi PDF sang Word chuẩn và Chuyển văn bản thành giọng nói tiếng Việt tự nhiên.',
+                        'Phần mềm hỗ trợ Thầy Cô: Chuyển đổi PDF sang Word, Quét tài liệu & Camera điện thoại, và Đọc văn bản tiếng Việt tự nhiên.',
                         style: TextStyle(
                           fontSize: 14,
                           color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
@@ -82,9 +82,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             const SizedBox(height: 24),
 
-            // 2. FEATURED CORE TEACHER TOOLS (2 công cụ trọng tâm)
+            // 2. FEATURED CORE TEACHER TOOLS (3 công cụ trọng tâm)
             _buildSectionHeader(
-              '2 Công cụ Trọng tâm Sư phạm',
+              '3 Công cụ Trọng tâm Sư phạm',
               'Được tinh gọn và thiết kế riêng biệt theo nhu cầu thực tế của Thầy Cô trong trường học',
               isDark,
             ),
@@ -111,7 +111,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 const SizedBox(width: 14),
                 const QuickStatItem(
                   title: 'Công cụ giáo viên',
-                  value: '2 công cụ chính',
+                  value: '3 công cụ cốt lõi',
                   icon: Icons.school_rounded,
                   color: AppColors.secondary,
                 ),
@@ -132,7 +132,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     const tools = [
       _CoreTool(
         title: 'Chuyển đổi File PDF sang Word',
-        subtitle: 'Kéo thả file PDF giáo án, tài liệu để chuyển sang Word (.docx) và Excel (.xlsx). Giữ nguyên định dạng bảng biểu, tự nắn thẳng trang, mở xem ngay sau khi chuyển.',
+        subtitle: 'Kéo thả file PDF giáo án, tài liệu để chuyển sang Word (.docx) và Excel (.xlsx). Giữ nguyên bảng biểu, tự nắn thẳng trang, mở xem ngay sau khi chuyển.',
         badge: 'Trọng tâm 📄',
         badgeColor: AppColors.modulePdf,
         icon: Icons.picture_as_pdf_rounded,
@@ -140,6 +140,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         gradientEnd: Color(0xFFEA580C),
         route: AppRoutes.pdfConverter,
         actionTitle: 'Mở Chuyển đổi PDF',
+      ),
+      _CoreTool(
+        title: 'Quét & Số hóa (Máy scan / Camera / Điện thoại)',
+        subtitle: 'Kết nối máy scan WIA, cắm điện thoại hoặc camera để quét giáo án, đề thi. Tự động nắn góc 4 điểm, làm trắng trang và OCR xuất Searchable PDF / Word.',
+        badge: 'Scan & Camera 📸',
+        badgeColor: AppColors.moduleScanner,
+        icon: Icons.document_scanner_rounded,
+        gradientStart: Color(0xFF0284C7),
+        gradientEnd: Color(0xFF0EA5E9),
+        route: AppRoutes.scanner,
+        actionTitle: 'Mở Quét tài liệu',
       ),
       _CoreTool(
         title: 'Chuyển Văn bản thành Giọng nói (TTS)',
@@ -156,8 +167,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 800;
-        final cardWidth = isWide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
+        final cardWidth = constraints.maxWidth > 1050
+            ? (constraints.maxWidth - 32) / 3
+            : (constraints.maxWidth > 680 ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth);
 
         return Wrap(
           spacing: 16,

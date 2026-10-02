@@ -44,9 +44,11 @@ class ScannerScreen extends ConsumerWidget {
                 child: !hasPages
                     ? ScannerFirstRunView(
                         availableScanners: state.availableScanners,
+                        availableCameras: state.availableCameras,
+                        onRefreshDevices: () => notifier.initialize(),
                         onScanClick: () => notifier.scanFromHardware(),
                         onImportImagesClick: () => _pickAndImportImages(context, notifier),
-                        onCaptureCameraClick: () => notifier.captureFromCamera(),
+                        onCaptureCameraClick: () => _handleCameraCapture(context, notifier, state),
                         onImportPdfClick: () => _pickAndImportPdf(context, notifier),
                       )
                     : Row(
@@ -59,7 +61,7 @@ class ScannerScreen extends ConsumerWidget {
                             onDeletePage: (idx) => notifier.deleteCurrentPage(),
                             onDuplicatePage: (idx) => notifier.duplicateCurrentPage(),
                             onReorder: (oldIdx, newIdx) => notifier.reorderPages(oldIdx, newIdx),
-                            onAddPage: () => _showAddPageDialog(context, notifier),
+                            onAddPage: () => _showAddPageDialog(context, notifier, state),
                           ),
 
                           // Center Pane: Document Preview Viewport
@@ -183,7 +185,7 @@ class ScannerScreen extends ConsumerWidget {
         children: [
           // Add Page Dropdown
           FilledButton.tonalIcon(
-            onPressed: () => _showAddPageDialog(context, notifier),
+            onPressed: () => _showAddPageDialog(context, notifier, state),
             icon: const Icon(Icons.add, size: 18),
             label: const Text('Thêm trang'),
           ),
@@ -206,9 +208,9 @@ class ScannerScreen extends ConsumerWidget {
 
           // Camera Capture Button
           OutlinedButton.icon(
-            onPressed: () => notifier.captureFromCamera(),
+            onPressed: () => _handleCameraCapture(context, notifier, state),
             icon: const Icon(Icons.camera_alt_outlined, size: 18),
-            label: const Text('Chụp Camera'),
+            label: const Text('Chụp Camera / ĐT'),
           ),
           const SizedBox(width: 10),
 
@@ -329,7 +331,7 @@ class ScannerScreen extends ConsumerWidget {
     );
   }
 
-  void _showAddPageDialog(BuildContext context, ScannerNotifier notifier) {
+  void _showAddPageDialog(BuildContext context, ScannerNotifier notifier, ScannerState state) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -349,15 +351,15 @@ class ScannerScreen extends ConsumerWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt_rounded, color: Colors.purple),
-                title: const Text('Chụp từ Camera / Webcam'),
+                title: const Text('Chụp từ Camera / Điện thoại'),
                 onTap: () {
                   Navigator.pop(ctx);
-                  notifier.captureFromCamera();
+                  _handleCameraCapture(context, notifier, state);
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_rounded, color: Colors.green),
-                title: const Text('Nhập tệp hình ảnh (JPG, PNG, TIFF, ...)'),
+                title: const Text('Nhập tệp hình ảnh từ điện thoại / máy tính'),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickAndImportImages(context, notifier);
@@ -375,6 +377,165 @@ class ScannerScreen extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+
+  void _handleCameraCapture(BuildContext context, ScannerNotifier notifier, ScannerState state) {
+    if (state.availableCameras.isEmpty) {
+      _showCameraConnectHelpDialog(context, notifier);
+    } else if (state.availableCameras.length == 1) {
+      notifier.captureFromCamera();
+    } else {
+      _showCameraPickerDialog(context, notifier, state);
+    }
+  }
+
+  void _showCameraPickerDialog(BuildContext context, ScannerNotifier notifier, ScannerState state) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.camera_alt_rounded, color: Color(0xFF0284C7)),
+            SizedBox(width: 10),
+            Text('Chọn Camera / Điện thoại'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Chọn thiết bị bạn muốn dùng để chụp quét tài liệu:',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            for (final cam in state.availableCameras)
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                leading: Icon(
+                  cam.name.toLowerCase().contains('droidcam') ||
+                          cam.name.toLowerCase().contains('iriun') ||
+                          cam.name.toLowerCase().contains('phone')
+                      ? Icons.phone_android_rounded
+                      : Icons.videocam_rounded,
+                  color: AppColors.primary,
+                ),
+                title: Text(cam.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(
+                  cam.manufacturer ?? 'Camera / Điện thoại',
+                  style: const TextStyle(fontSize: 11),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  notifier.selectCamera(cam);
+                  notifier.captureFromCamera();
+                },
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCameraConnectHelpDialog(BuildContext context, ScannerNotifier notifier) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.phone_android_rounded, color: Color(0xFF8B5CF6)),
+            SizedBox(width: 10),
+            Expanded(child: Text('Kết nối Camera hoặc Điện thoại')),
+          ],
+        ),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Chưa phát hiện Camera hoặc Webcam nào trên máy tính. Để quét tài liệu bằng điện thoại:',
+                style: TextStyle(fontSize: 13.5, height: 1.4),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '📱 Cách 1: Dùng camera điện thoại độ nét cao (Khuyên dùng)',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '1. Cài app DroidCam hoặc Iriun Webcam (miễn phí) trên cả điện thoại và máy tính.\n'
+                      '2. Cắm dây cáp USB hoặc kết nối cùng mạng Wi-Fi với máy tính.\n'
+                      '3. Mở app trên điện thoại, máy tính sẽ nhận điện thoại làm camera chụp quét tài liệu cực nét.',
+                      style: TextStyle(fontSize: 12.5, height: 1.4),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.green.withOpacity(0.2)),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '📂 Cách 2: Cắm cáp USB chọn ảnh trực tiếp từ điện thoại',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF10B981)),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Chụp sẵn ảnh tài liệu trên điện thoại, cắm cáp sạc USB vào máy tính, chọn "Truyền tệp", rồi bấm nút "Nhập ảnh từ ĐT / Máy tính" bên dưới để đưa ảnh vào số hóa ngay.',
+                      style: TextStyle(fontSize: 12.5, height: 1.4),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.pop(ctx);
+              notifier.initialize();
+            },
+            icon: const Icon(Icons.refresh_rounded, size: 16),
+            label: const Text('Quét lại thiết bị'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _pickAndImportImages(context, notifier);
+            },
+            icon: const Icon(Icons.photo_library_rounded, size: 16),
+            label: const Text('Nhập ảnh từ ĐT / Máy tính'),
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+          ),
+        ],
+      ),
     );
   }
 

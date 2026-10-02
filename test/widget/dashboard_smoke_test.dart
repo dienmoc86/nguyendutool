@@ -62,13 +62,15 @@ void main() {
     // Verify main welcome title
     expect(find.text('Chào mừng đến với NguyenDu Tool'), findsOneWidget);
 
-    // Verify 2 Core Teacher Tools exist
+    // Verify 3 Core Teacher Tools exist
     expect(find.text('Chuyển đổi File PDF sang Word'), findsOneWidget);
+    expect(find.text('Quét & Số hóa (Máy scan / Camera / Điện thoại)'), findsOneWidget);
     expect(find.text('Chuyển Văn bản thành Giọng nói (TTS)'), findsOneWidget);
-    expect(find.text('2 Công cụ Trọng tâm Sư phạm'), findsOneWidget);
+    expect(find.text('3 Công cụ Trọng tâm Sư phạm'), findsOneWidget);
 
     // Verify action buttons
     expect(find.text('Mở Chuyển đổi PDF'), findsOneWidget);
+    expect(find.text('Mở Quét tài liệu'), findsOneWidget);
     expect(find.text('Mở Đọc văn bản (TTS)'), findsOneWidget);
 
     // Verify Recent Jobs section

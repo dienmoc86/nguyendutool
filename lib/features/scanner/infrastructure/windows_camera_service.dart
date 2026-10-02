@@ -33,10 +33,26 @@ class CameraDeviceInfo {
 /// Windows Camera & Document Camera capture service.
 /// Uses Windows MediaCapture / PnP enumeration cleanly.
 class WindowsCameraService {
+  String? _resolveFfmpegPath() {
+    final candidates = [
+      p.join(p.dirname(Platform.resolvedExecutable), 'bin', 'ffmpeg.exe'),
+      p.join(Directory.current.path, 'bin', 'ffmpeg.exe'),
+      p.join(p.dirname(Platform.resolvedExecutable), 'ffmpeg.exe'),
+    ];
+    for (final c in candidates) {
+      if (File(c).existsSync()) return c;
+    }
+    return null;
+  }
+
   /// Enumerates connected camera and webcam devices. Returns empty list if none found.
   Future<List<CameraDeviceInfo>> getAvailableCameras() async {
     if (!Platform.isWindows) return const [];
 
+    final cameras = <CameraDeviceInfo>[];
+    final seen = <String>{};
+
+    // 1. Probe PnP Camera & Image devices via PowerShell
     try {
       const script = r'''
 $ErrorActionPreference = 'Stop'
@@ -71,21 +87,56 @@ try {
         if (out.startsWith('{') && out.contains('"cameras"')) {
           final data = jsonDecode(out) as Map<String, dynamic>;
           final list = data['cameras'] as List<dynamic>? ?? [];
-          return list.map((item) {
+          for (final item in list) {
             final map = item as Map<String, dynamic>;
-            return CameraDeviceInfo(
-              id: map['id'] as String? ?? '',
-              name: map['name'] as String? ?? 'Camera',
-              manufacturer: map['manufacturer'] as String?,
-            );
-          }).toList();
+            final id = map['id'] as String? ?? '';
+            final name = map['name'] as String? ?? 'Camera';
+            final key = name.toLowerCase();
+            if (!seen.contains(key)) {
+              seen.add(key);
+              cameras.add(CameraDeviceInfo(
+                id: id,
+                name: name,
+                manufacturer: map['manufacturer'] as String?,
+              ));
+            }
+          }
         }
       }
     } catch (e) {
-      AppLogger.warning('Camera enumeration probe: $e');
+      AppLogger.warning('Camera PnP enumeration probe: $e');
     }
 
-    return const [];
+    // 2. Also probe DirectShow video capture devices (DroidCam, Iriun Webcam, USB capture)
+    try {
+      final ffmpegPath = _resolveFfmpegPath();
+      if (ffmpegPath != null) {
+        final res = await Process.run(
+          ffmpegPath,
+          ['-list_devices', 'true', '-f', 'dshow', '-i', 'dummy'],
+        ).timeout(const Duration(seconds: 5));
+        final combinedOutput = '${res.stdout}\n${res.stderr}';
+        final dshowRegex = RegExp(r'\[dshow\s*@\s*[^\]]+\]\s*"([^"]+)"\s*\(video\)');
+        for (final match in dshowRegex.allMatches(combinedOutput)) {
+          final camName = match.group(1)?.trim();
+          if (camName != null && camName.isNotEmpty) {
+            final key = camName.toLowerCase();
+            if (!seen.contains(key)) {
+              seen.add(key);
+              cameras.add(CameraDeviceInfo(
+                id: camName,
+                name: camName,
+                manufacturer: 'DirectShow / Phone Camera',
+              ));
+            }
+          }
+        }
+      }
+    } catch (e) {
+      AppLogger.warning('DirectShow camera enumeration: $e');
+    }
+
+    return cameras;
   }
 
   /// Captures a still photo from the selected camera device and returns saved file path.
@@ -99,13 +150,48 @@ try {
       throw const ScanAcquisitionException('Không tìm thấy thiết bị camera hoặc webcam nào được kết nối.');
     }
 
-    final tempDir = Directory(p.join(Directory.current.path, 'temp', 'camera_captures'));
+    final targetCamera = deviceId != null
+        ? cameras.firstWhere(
+            (c) => c.id == deviceId || c.name == deviceId,
+            orElse: () => cameras.first,
+          )
+        : cameras.first;
+
+    final tempDir = Directory(p.join(
+      Platform.environment['TEMP'] ?? Directory.systemTemp.path,
+      'nguyendu_captures',
+    ));
     if (!tempDir.existsSync()) {
       tempDir.createSync(recursive: true);
     }
     final outPath = p.join(tempDir.path, 'capture_${const Uuid().v4()}.jpg');
 
-    // PowerShell MediaCapture capture script
+    // Attempt 1: Try FFmpeg DirectShow capture for ultra-fast, robust capture (DroidCam, Iriun, webcams)
+    try {
+      final ffmpegPath = _resolveFfmpegPath();
+      if (ffmpegPath != null) {
+        final ffmpegRes = await Process.run(
+          ffmpegPath,
+          [
+            '-f', 'dshow',
+            '-i', 'video=${targetCamera.name}',
+            '-frames:v', '1',
+            '-q:v', '2',
+            outPath,
+            '-y',
+          ],
+        ).timeout(const Duration(seconds: 12));
+
+        if (ffmpegRes.exitCode == 0 && File(outPath).existsSync() && File(outPath).lengthSync() > 0) {
+          return outPath;
+        }
+      }
+    } catch (e) {
+      AppLogger.info('FFmpeg DirectShow capture fallback to WinRT: $e');
+    }
+
+    // Attempt 2: Fall back to PowerShell WinRT MediaCapture
+    final devId = targetCamera.id;
     final script = '''
 \$ErrorActionPreference = 'Stop'
 try {
@@ -124,6 +210,9 @@ try {
     }
 
     \$settings = [Windows.Media.Capture.MediaCaptureInitializationSettings]::new()
+    if ('$devId' -and '$devId' -ne '$targetCamera.name') {
+        \$settings.VideoDeviceId = '$devId'
+    }
     \$capture = [Windows.Media.Capture.MediaCapture]::new()
     Await-Op (\$capture.InitializeAsync(\$settings)) ([System.Void])
 
@@ -156,7 +245,7 @@ try {
     }
 
     throw ScanAcquisitionException(
-      'Không thể chụp ảnh từ Camera. Vui lòng kiểm tra quyền truy cập camera trong Windows Settings.',
+      'Không thể chụp ảnh từ Camera (${targetCamera.name}). Vui lòng kiểm tra kết nối thiết bị hoặc quyền truy cập Camera trong Windows Settings.',
       technicalDetails: '$out \n ${res.stderr}',
     );
   }
