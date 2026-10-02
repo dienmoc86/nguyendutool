@@ -799,13 +799,8 @@ class _PdfConverterScreenState extends ConsumerState<PdfConverterScreen> {
                 ),
               ),
               const SizedBox(width: 6),
-              IconButton(
-                tooltip: 'Mở thư mục chứa tệp Word',
-                icon: const Icon(Icons.folder_open_rounded, color: Colors.blue, size: 20),
-                onPressed: () => WorkspaceManager.openContainingFolder(item.docxPath!),
-              ),
             ],
-            if (item.xlsxPath != null)
+            if (item.xlsxPath != null) ...[
               Tooltip(
                 message: 'Mở sổ điểm / bảng tính Excel (.xlsx)',
                 child: ElevatedButton.icon(
@@ -818,6 +813,33 @@ class _PdfConverterScreenState extends ConsumerState<PdfConverterScreen> {
                     visualDensity: VisualDensity.compact,
                   ),
                   onPressed: () => WorkspaceManager.openFile(item.xlsxPath!),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            if (item.pptxPath != null) ...[
+              Tooltip(
+                message: 'Mở bài giảng PowerPoint (.pptx)',
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.slideshow_rounded, size: 16),
+                  label: const Text('Mở PowerPoint', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange.shade800,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  onPressed: () => WorkspaceManager.openFile(item.pptxPath!),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            if ((item.docxPath ?? item.xlsxPath ?? item.pptxPath) != null)
+              IconButton(
+                tooltip: 'Mở thư mục chứa tệp đã chuyển đổi',
+                icon: const Icon(Icons.folder_open_rounded, color: Colors.blue, size: 20),
+                onPressed: () => WorkspaceManager.openContainingFolder(
+                  item.docxPath ?? item.xlsxPath ?? item.pptxPath!,
                 ),
               ),
           ],

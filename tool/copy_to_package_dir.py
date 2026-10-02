@@ -34,8 +34,11 @@ def main():
         src_path = os.path.join(release_dir, f)
         dest_path = os.path.join(target_dir, f)
         if os.path.isfile(src_path):
-            shutil.copy2(src_path, dest_path)
-            copied.append(f)
+            try:
+                shutil.copy2(src_path, dest_path)
+                copied.append(f)
+            except Exception as e:
+                print(f"Notice: could not copy {f} (may be in use): {e}")
 
     # 2. Copy loose release binaries so user can run immediately from "đóng gói tool" without setup
     build_release = os.path.join(base_dir, "build", "windows", "x64", "runner", "Release")
@@ -44,24 +47,33 @@ def main():
             src_item = os.path.join(build_release, item)
             dest_item = os.path.join(target_dir, item)
             if os.path.isfile(src_item):
-                shutil.copy2(src_item, dest_item)
-                copied.append(item)
+                try:
+                    shutil.copy2(src_item, dest_item)
+                    copied.append(item)
+                except Exception as e:
+                    print(f"Notice: could not copy {item} (may be in use): {e}")
             elif os.path.isdir(src_item):
-                if os.path.exists(dest_item):
-                    shutil.rmtree(dest_item)
-                shutil.copytree(src_item, dest_item)
-                copied.append(item)
+                try:
+                    if os.path.exists(dest_item):
+                        shutil.rmtree(dest_item)
+                    shutil.copytree(src_item, dest_item)
+                    copied.append(item)
+                except Exception as e:
+                    print(f"Notice: could not copy directory {item}: {e}")
 
     # 3. Copy bin/ directory (ffmpeg, edge_tts_runner, dlls)
     bin_dir = os.path.join(base_dir, "bin")
     if os.path.exists(bin_dir):
         dest_bin = os.path.join(target_dir, "bin")
-        if os.path.exists(dest_bin):
-            shutil.rmtree(dest_bin)
-        shutil.copytree(bin_dir, dest_bin)
-        copied.append("bin")
+        try:
+            if os.path.exists(dest_bin):
+                shutil.rmtree(dest_bin)
+            shutil.copytree(bin_dir, dest_bin)
+            copied.append("bin")
+        except Exception as e:
+            print(f"Notice: could not sync bin directory: {e}")
 
-    print(f"Successfully copied {len(copied)} items to 'đóng gói tool': {copied}")
+    print(f"Successfully processed items to 'đóng gói tool': {copied}")
 
 if __name__ == "__main__":
     main()

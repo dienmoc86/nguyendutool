@@ -6,7 +6,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('AppBootstrap.run completes successfully and keeps database open for settings loading', () async {
-    final result = await AppBootstrap.run();
+    final result = await AppBootstrap.run(enforceSingleInstance: false);
     expect(result, isNotNull);
     expect(result.database.isOpen, isTrue);
     expect(result.initialSettings, isNotNull);

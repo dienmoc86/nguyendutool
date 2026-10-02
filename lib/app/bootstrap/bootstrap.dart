@@ -36,7 +36,7 @@ class AppBootstrapResult {
 
 /// Orchestrates the startup sequence of NguyenDu Tool.
 class AppBootstrap {
-  static Future<AppBootstrapResult> run() async {
+  static Future<AppBootstrapResult> run({bool enforceSingleInstance = true}) async {
     String currentStep = 'init_bindings';
 
     try {
@@ -56,13 +56,15 @@ class AppBootstrap {
       AppLogger.info('Starting NguyenDu Tool bootstrap sequence...');
 
       // 4. Single-Instance Guard (Requirements 24 & 25)
-      currentStep = 'single_instance_guard';
-      final isExclusive = await SingleInstanceGuard.acquireLock(workspaceManager.rootPath);
-      if (!isExclusive) {
-        throw const SingleInstanceLockException(
-          'Một phiên bản khác của NguyenDu Tool đang chạy trên máy tính này. '
-          'Để bảo vệ an toàn toàn vẹn cơ sở dữ liệu, ứng dụng chỉ được phép chạy một tiến trình duy nhất.',
-        );
+      if (enforceSingleInstance) {
+        currentStep = 'single_instance_guard';
+        final isExclusive = await SingleInstanceGuard.acquireLock(workspaceManager.rootPath);
+        if (!isExclusive) {
+          throw const SingleInstanceLockException(
+            'Một phiên bản khác của NguyenDu Tool đang chạy trên máy tính này. '
+            'Để bảo vệ an toàn toàn vẹn cơ sở dữ liệu, ứng dụng chỉ được phép chạy một tiến trình duy nhất.',
+          );
+        }
       }
 
       // 5. Initialize Local SQLite Database

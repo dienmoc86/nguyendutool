@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/filesystem/workspace_manager.dart';
 import '../../application/tts_providers.dart';
 import '../../application/tts_state.dart';
 
@@ -151,6 +152,26 @@ class TtsPlaybackBar extends ConsumerWidget {
 
               const SizedBox(width: 16),
               const VerticalDivider(width: 20),
+
+              if (hasAudio) ...[
+                Tooltip(
+                  message: 'Mở nghe tệp âm thanh trực tiếp',
+                  child: OutlinedButton.icon(
+                    onPressed: () => WorkspaceManager.openFile(state.currentAudioPath!),
+                    icon: const Icon(Icons.audio_file_rounded, size: 16),
+                    label: const Text('Mở tệp', style: TextStyle(fontSize: 12.5)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Tooltip(
+                  message: 'Mở thư mục chứa tệp MP3',
+                  child: IconButton(
+                    onPressed: () => WorkspaceManager.openContainingFolder(state.currentAudioPath!),
+                    icon: const Icon(Icons.folder_open_rounded, color: AppColors.moduleTts, size: 20),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
 
               // Generate Button
               ElevatedButton.icon(

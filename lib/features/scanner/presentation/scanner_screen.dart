@@ -1,8 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import '../../../app/theme/app_colors.dart';
+import '../../../core/filesystem/workspace_manager.dart';
 import '../../../core/platform/native_file_dialog.dart';
 import '../application/scanner_notifier.dart';
 import '../application/scanner_providers.dart';
@@ -565,17 +565,45 @@ class ScannerScreen extends ConsumerWidget {
         onExport: (options) async {
           final outPath = await notifier.exportSession(options);
           if (outPath != null && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Xuất tài liệu thành công: ${p.basename(outPath)}'),
-                backgroundColor: Colors.green,
-                action: SnackBarAction(
-                  label: 'Mở thư mục',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    Process.run('explorer.exe', ['/select,', outPath]);
-                  },
+            showDialog(
+              context: context,
+              builder: (dCtx) => AlertDialog(
+                title: const Row(
+                  children: [
+                    Icon(Icons.check_circle_rounded, color: Colors.green, size: 24),
+                    SizedBox(width: 10),
+                    Text('Xuất tài liệu thành công!'),
+                  ],
                 ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Tệp tài liệu: ${p.basename(outPath)}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(height: 6),
+                    Text(outPath, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  ],
+                ),
+                actions: [
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.folder_open_rounded, size: 16),
+                    label: const Text('Mở thư mục'),
+                    onPressed: () {
+                      Navigator.pop(dCtx);
+                      WorkspaceManager.openContainingFolder(outPath);
+                    },
+                  ),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                    label: const Text('Mở tệp ngay'),
+                    style: FilledButton.styleFrom(backgroundColor: Colors.green),
+                    onPressed: () {
+                      Navigator.pop(dCtx);
+                      WorkspaceManager.openFile(outPath);
+                    },
+                  ),
+                ],
               ),
             );
           }
