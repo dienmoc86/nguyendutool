@@ -16,6 +16,7 @@ import '../../../core/update/update_notifier.dart';
 import '../../../core/product/product_info.dart';
 import '../../shell/presentation/update_dialog.dart';
 import '../../shell/presentation/support_author_dialog.dart';
+import '../../video_studio/infrastructure/open_sora_video_service.dart';
 import 'system_diagnostics_screen.dart';
 
 /// Settings screen divided into General, Storage, AI Providers, Advanced, Diagnostics, and About.
@@ -524,6 +525,100 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const SizedBox(height: 14),
 
+                // Gói 2: Piper TTS Offline AI (C++ & ONNX)
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.purple.withOpacity(0.35)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.bolt_rounded, color: Colors.purpleAccent, size: 24),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Piper TTS Cục bộ (100% Offline AI Neural C++ & ONNX)',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                                const SizedBox(width: 10),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.purple.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    '100% Offline AI',
+                                    style: TextStyle(fontSize: 11, color: Colors.purpleAccent, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Động cơ nơ-ron cục bộ siêu nhẹ mã nguồn mở trên GitHub (rhasspy/piper). Đọc ngoại tuyến không cần mạng, phát âm cực chuẩn (Thanh Hà, Thu Hương, Quang Dũng) và chạy mượt trên mọi CPU không cần card màn hình.',
+                              style: TextStyle(fontSize: 12, color: AppColors.darkTextSecondary, height: 1.4),
+                            ),
+                            const SizedBox(height: 10),
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 8,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () async {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Đang tải và cập nhật gói mô hình Piper Offline...')),
+                                    );
+                                    try {
+                                      await Process.run('powershell.exe', [
+                                        '-ExecutionPolicy',
+                                        'Bypass',
+                                        '-File',
+                                        'tool/download_piper.ps1',
+                                      ]);
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Gói Piper TTS đã được cài đặt thành công!')),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Lỗi tải Piper: $e')),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  icon: const Icon(Icons.download_rounded, size: 16),
+                                  label: const Text('Tải / Cập nhật Piper Offline (1-Click)'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.purpleAccent.shade700,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                ),
+                                OutlinedButton.icon(
+                                  onPressed: () => context.go(AppRoutes.textToSpeech),
+                                  icon: const Icon(Icons.record_voice_over_rounded, size: 16),
+                                  label: const Text('Mở Text-to-Speech'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
                 // Gói 2: Windows Offline SAPI
                 Container(
                   padding: const EdgeInsets.all(14),
@@ -694,6 +789,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         const SizedBox(height: 20),
 
         _buildGeminiSettingsHeroCard(context, credService),
+        const SizedBox(height: 18),
+
+        _buildOpenSoraSettingsCard(context),
         const SizedBox(height: 24),
 
         _buildCard(
@@ -1164,6 +1262,171 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildOpenSoraSettingsCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [
+                  const Color(0xFF1E1B4B).withOpacity(0.85),
+                  const Color(0xFF111827).withOpacity(0.85),
+                ]
+              : [
+                  const Color(0xFFEEF2FF),
+                  const Color(0xFFF3E8FF),
+                ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.purpleAccent.withOpacity(0.4),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purple.withOpacity(0.15),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.auto_awesome_motion_rounded, color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'Open-Sora AI Video Generator (HPC-AI Tech)',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.purpleAccent.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.purpleAccent.withOpacity(0.5)),
+                          ),
+                          child: const Text(
+                            'Open Source AI Video',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purpleAccent),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Tích hợp công nghệ sinh video AI mã nguồn mở tiên tiến nhất. Kết nối linh hoạt tới máy chủ GPU (Local / Google Colab / RunPod / Replicate Cloud) để sinh video minh họa bài giảng từ mô tả văn bản.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.white70 : Colors.black87,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.black26 : Colors.white60,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.link_rounded, size: 14, color: Colors.purpleAccent),
+                          SizedBox(width: 8),
+                          Text(
+                            'Cổng kết nối mặc định: http://127.0.0.1:8000/generate (Hỗ trợ cấu hình tùy chỉnh)',
+                            style: TextStyle(fontSize: 12, fontFamily: 'monospace', color: Colors.purpleAccent),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: Colors.white10),
+          const SizedBox(height: 14),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 10,
+            children: [
+              Text(
+                'Mô hình khuếch tán Diffusion Transformer • Hoạt động độc lập qua API không làm nặng app',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Đang kiểm tra kết nối tới http://127.0.0.1:8000...')),
+                      );
+                      final ok = await OpenSoraVideoService.instance.testConnection('http://127.0.0.1:8000');
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(ok
+                                ? 'Kết nối tới Open-Sora Server thành công!'
+                                : 'Chưa phát hiện GPU server tại cổng 8000. Bạn vẫn có thể dùng chế độ mô phỏng hoặc cấu hình URL server khác trong Video Studio.'),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.network_check_rounded, size: 16),
+                    label: const Text('Kiểm tra cổng 8000'),
+                  ),
+                  FilledButton.icon(
+                    onPressed: () => context.go(AppRoutes.videoStudio),
+                    icon: const Icon(Icons.movie_creation_rounded, size: 16),
+                    label: const Text('Mở Video Studio tạo Video ngay'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.purpleAccent.shade700,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

@@ -67,6 +67,18 @@ $portableHash  NguyenDuTool_Portable_$appVersion.zip
 $checksums | Set-Content "$releaseDir\SHA256SUMS.txt"
 Write-Host "SHA256SUMS.txt generated in $releaseDir."
 
+# Update RELEASE_MANIFEST.json with newly calculated hashes
+$manifestPath = "RELEASE_MANIFEST.json"
+if (Test-Path $manifestPath) {
+    $manifestJson = Get-Content $manifestPath -Raw | ConvertFrom-Json
+    $manifestJson.sha256 = $setupHash
+    $manifestJson.installerSha256 = $setupHash
+    $manifestJson.portableSha256 = $portableHash
+    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $manifestPath -Encoding utf8
+    $manifestJson | ConvertTo-Json -Depth 10 | Set-Content "$releaseDir\RELEASE_MANIFEST.json" -Encoding utf8
+    Write-Host "RELEASE_MANIFEST.json updated with new SHA256 hashes."
+}
+
 # Copy to user's designated packaging directory: "đóng gói tool"
 Write-Host "`nCopying artifacts to 'đóng gói tool'..."
 python "tool\copy_to_package_dir.py"

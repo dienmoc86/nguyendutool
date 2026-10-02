@@ -148,6 +148,43 @@ class VideoStudioNotifier extends StateNotifier<VideoStudioState> {
     _projectRepository.autosave(state.currentProject);
   }
 
+  /// Inserts an AI generated video clip (e.g. from Open-Sora) directly into the project timeline.
+  void addAiGeneratedScene({
+    required String videoPath,
+    required String prompt,
+    double durationSeconds = 5.0,
+  }) {
+    final proj = state.currentProject;
+    final insertIndex = proj.scenes.length;
+    final newSceneId = '${proj.id}_ai_scene_${DateTime.now().millisecondsSinceEpoch}';
+
+    final newScene = VideoScene(
+      id: newSceneId,
+      projectId: proj.id,
+      index: insertIndex,
+      durationSeconds: durationSeconds,
+      title: 'Video AI: ${prompt.length > 30 ? "${prompt.substring(0, 30)}..." : prompt}',
+      videoClipPath: videoPath,
+      imageFitMode: proj.aspectRatio == VideoAspectRatio.vertical9x16
+          ? ImageFitMode.fit
+          : ImageFitMode.fill,
+      blurBackground: proj.aspectRatio == VideoAspectRatio.vertical9x16,
+    );
+
+    final updatedScenes = List<VideoScene>.from(proj.scenes);
+    updatedScenes.add(newScene);
+
+    for (int i = 0; i < updatedScenes.length; i++) {
+      updatedScenes[i] = updatedScenes[i].copyWith(index: i);
+    }
+
+    state = state.copyWith(
+      currentProject: proj.copyWith(scenes: updatedScenes, updatedAt: DateTime.now()),
+      selectedSceneIndex: insertIndex,
+    );
+    _projectRepository.autosave(state.currentProject);
+  }
+
   /// Deletes a scene at specified index.
   void deleteScene(int index) {
     final proj = state.currentProject;

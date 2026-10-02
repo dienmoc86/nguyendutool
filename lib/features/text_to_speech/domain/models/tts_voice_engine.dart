@@ -9,4 +9,7 @@ enum TtsVoiceEngine {
 
   /// Cloud TTS providers (Google Cloud TTS, Microsoft Azure Speech)
   cloud,
+
+  /// Local Neural / ONNX offline engines (e.g. Piper TTS, Sherpa-ONNX)
+  piper,
 }

@@ -449,6 +449,86 @@ class TtsVoiceSelector extends ConsumerWidget {
               ),
               const SizedBox(height: 14),
 
+              // Gói 2: Piper TTS Offline AI (C++ & ONNX)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.purple.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.purple.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.bolt_rounded, color: Colors.purpleAccent, size: 18),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Piper TTS Cục bộ (100% Offline AI Neural)',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.purple.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text('Offline AI', style: TextStyle(fontSize: 10, color: Colors.purpleAccent, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Động cơ nơ-ron mã nguồn mở siêu nhẹ (C++ & ONNX). Đọc 100% ngoại tuyến không cần Internet, tốc độ tổng hợp tức thì trên CPU tiêu chuẩn (Thanh Hà, Thu Hương, Quang Dũng).',
+                      style: TextStyle(fontSize: 12, color: AppColors.darkTextSecondary),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Đang kiểm tra và tải gói mô hình Piper Offline...')),
+                            );
+                            try {
+                              await Process.run('powershell.exe', [
+                                '-ExecutionPolicy',
+                                'Bypass',
+                                '-File',
+                                'tool/download_piper.ps1',
+                              ]);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Gói Piper TTS Offline đã sẵn sàng!')),
+                                );
+                                notifier.loadVoices();
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Lỗi khi tải gói Piper: $e')),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.download_rounded, size: 14),
+                          label: const Text('Tải / Kiểm tra Piper Offline'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.purpleAccent.shade700,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            textStyle: const TextStyle(fontSize: 11),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
               // Gói 2: Windows Offline Speech Pack
               Container(
                 padding: const EdgeInsets.all(12),

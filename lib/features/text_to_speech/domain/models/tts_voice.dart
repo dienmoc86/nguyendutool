@@ -35,7 +35,9 @@ class TtsVoice {
     final offlineTag = isOffline ? '[Cục bộ]' : '[Đám mây]';
     final engineTag = engine == TtsVoiceEngine.oneCore
         ? ' (OneCore)'
-        : (engine == TtsVoiceEngine.sapi ? ' (SAPI)' : '');
+        : (engine == TtsVoiceEngine.sapi
+            ? ' (SAPI)'
+            : (engine == TtsVoiceEngine.piper ? ' (Piper AI)' : ''));
     return '$name ($language, $gender)$engineTag $offlineTag';
   }
 

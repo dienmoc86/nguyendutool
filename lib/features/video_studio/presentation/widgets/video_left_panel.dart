@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../domain/models/video_template.dart';
 import '../../application/video_studio_providers.dart';
+import 'ai_video_generation_panel.dart';
 
 /// Left panel for managing project scenes, templates, and imported media assets.
 class VideoLeftPanel extends ConsumerStatefulWidget {
@@ -18,7 +19,7 @@ class _VideoLeftPanelState extends ConsumerState<VideoLeftPanel> with SingleTick
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -34,7 +35,7 @@ class _VideoLeftPanelState extends ConsumerState<VideoLeftPanel> with SingleTick
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      width: 280,
+      width: 310,
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         border: Border(
@@ -45,15 +46,16 @@ class _VideoLeftPanelState extends ConsumerState<VideoLeftPanel> with SingleTick
       ),
       child: Column(
         children: [
-          // Tab Header: Phân cảnh / Mẫu dự án
+          // Tab Header: Phân cảnh / Mẫu dự án / Video AI
           TabBar(
             controller: _tabController,
             labelColor: AppColors.moduleVideo,
             unselectedLabelColor: isDark ? Colors.white60 : Colors.black54,
             indicatorColor: AppColors.moduleVideo,
             tabs: const [
-              Tab(icon: Icon(Icons.view_carousel_rounded, size: 18), text: 'Phân cảnh'),
-              Tab(icon: Icon(Icons.dashboard_customize_rounded, size: 18), text: 'Mẫu thiết kế'),
+              Tab(icon: Icon(Icons.view_carousel_rounded, size: 16), text: 'Cảnh'),
+              Tab(icon: Icon(Icons.dashboard_customize_rounded, size: 16), text: 'Mẫu'),
+              Tab(icon: Icon(Icons.auto_awesome_rounded, size: 16), text: 'Video AI'),
             ],
           ),
 
@@ -232,6 +234,9 @@ class _VideoLeftPanelState extends ConsumerState<VideoLeftPanel> with SingleTick
                     );
                   }).toList(),
                 ),
+
+                // Tab 3: Open-Sora AI Video Generator
+                const AiVideoGenerationPanel(),
               ],
             ),
           ),
